@@ -188,6 +188,7 @@ export default {
   computed: {},
   watch: {},
   created () {
+      console.log('Nivas vue-hotel-datepicker');
     this.render()
   },
   mounted () {},

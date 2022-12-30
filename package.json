@@ -6,7 +6,7 @@
   "module": "lib/vue-hotel-datepicker.esm.js",
   "unpkg": "lib/vue-hotel-datepicker.min.js",
   "browser": {
-    "./sfc": "src/components/VueHotelDatepicker.vue"
+    "./sfc": "src/components/VueHotelDatepickerModal.vue"
   },
   "scripts": {
     "serve": "vue-cli-service serve",

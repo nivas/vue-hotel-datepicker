@@ -76,6 +76,9 @@
             </div>
           </div>
         </div>
+        <div v-if="message" class="vhd-calendar-message">
+            {{message}}
+        </div>
         <div class="vhd-calendar-footer">
           <div v-if="selectStartDate || selectEndDate" class="reset" @click="reset">{{ resetText }}</div>
           <div v-if="selectStartDate && selectEndDate" class="confirm" @click="confirm">{{ confirmText }}</div>
@@ -168,6 +171,10 @@ export default {
     mobile: {
       type: String,
       default: '' // mobile or desktop
+    },
+    message: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -188,12 +195,11 @@ export default {
   computed: {},
   watch: {},
   created () {
-      console.log('Nivas vue-hotel-datepicker');
     this.render()
   },
   mounted () {},
   methods: {
-    render() {
+    render () {
       if (this.minDate) {
         const minDateValue = typeof (this.minDate) === 'string' ? this.minDate : this.minDate.getTime()
         this.selectMinDate = new Date(minDateValue)
@@ -220,12 +226,15 @@ export default {
       this.updateCalendar() // after setting
     },
     toggle (e) {
+        console.log('toggle', e);
       if (e.type === 'focus') {
         this.active = true
+        this.$emit('open')
         return true
       }
-
       this.active = !this.active
+        console.log('emitting', (this.active ? 'open' : 'close'))
+      this.$emit(this.active ? 'open' : 'close')
     },
     close () {
       this.active = false

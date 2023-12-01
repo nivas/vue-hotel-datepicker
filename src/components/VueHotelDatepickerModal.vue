@@ -295,28 +295,74 @@ export default {
     },
     dayOnClick (datetime) {
       if (datetime) {
-        if (!this.selectStartDate) {
+        // v7.1
+        // if dates are already selected, then first click resets start date
+        if (this.selectStartDate && this.selectEndDate) {
+          this.isSettingStartDate = true
+        }
+        // check which date we gonna set first - start or end
+        if (!this.selectStartDate || this.isSettingStartDate) {
+          // console.log("start date")
+          // If start date is not set or it's time to set start date
           this.selectStartDate = datetime
-        } else if (!this.selectEndDate) {
-          if (this.selectStartDate && datetime.getTime() < this.selectStartDate.getTime()) {
+          this.selectEndDate = null // Reset end date
+          this.isSettingStartDate = false // Prepare for setting the end date
+        } else {
+          // console.log("end date")
+          // Setting the end date
+          if (datetime.getTime() === this.selectStartDate.getTime()) {
+            // If the selected date is the same as the start date, reset only the end date for a new selection
+            this.selectEndDate = null
+            this.isSettingStartDate = false // Remain in the state of setting the end date
+          } else if (datetime.getTime() < this.selectStartDate.getTime()) {
+            // If the selected date is before the start date, set this as start date and previous start date as end date
             this.selectEndDate = this.selectStartDate
             this.selectStartDate = datetime
+            this.isSettingStartDate = true // Next click will start a new selection
           } else {
+            // Set the end date
             this.selectEndDate = datetime
+            this.isSettingStartDate = true // Next click will start a new selection
           }
-        } else if (datetime.getTime() < this.selectStartDate.getTime()) {
-          this.selectStartDate = datetime
-        } else if (datetime.getTime() > this.selectEndDate.getTime()) {
-          this.selectEndDate = datetime
-        } else if (datetime.getTime() > this.selectStartDate.getTime() &&
-                  datetime.getTime() < this.selectEndDate.getTime()) {
-          if (this.clickCount % 2 === 0) {
-            this.selectStartDate = datetime
-          } else {
-            this.selectEndDate = datetime
-          }
-          this.clickCount++
         }
+
+        // check maxNight
+        if (this.selectStartDate && this.selectEndDate && this.maxNight) {
+          const limitDate = this.selectStartDate.getTime() + this.maxNight * 1000 * 60 * 60 * 24
+          if (this.selectEndDate.getTime() > limitDate) {
+            this.selectEndDate = new Date(limitDate)
+          }
+        }
+        // check minNight
+        if (this.selectStartDate && this.selectEndDate && this.minNight) {
+          const limitDate = this.selectStartDate.getTime() + this.minNight * 1000 * 60 * 60 * 24
+          if (this.selectEndDate.getTime() < limitDate) {
+            this.selectEndDate = new Date(limitDate)
+          }
+        }
+
+        // if (!this.selectStartDate) {
+        //   this.selectStartDate = datetime
+        // } else if (!this.selectEndDate) {
+        //   if (this.selectStartDate && datetime.getTime() < this.selectStartDate.getTime()) {
+        //     this.selectEndDate = this.selectStartDate
+        //     this.selectStartDate = datetime
+        //   } else {
+        //     this.selectEndDate = datetime
+        //   }
+        // } else if (datetime.getTime() < this.selectStartDate.getTime()) {
+        //   this.selectStartDate = datetime
+        // } else if (datetime.getTime() > this.selectEndDate.getTime()) {
+        //   this.selectEndDate = datetime
+        // } else if (datetime.getTime() > this.selectStartDate.getTime() &&
+        //           datetime.getTime() < this.selectEndDate.getTime()) {
+        //   if (this.clickCount % 2 === 0) {
+        //     this.selectStartDate = datetime
+        //   } else {
+        //     this.selectEndDate = datetime
+        //   }
+        //   this.clickCount++
+        // }
       }
     }
   }

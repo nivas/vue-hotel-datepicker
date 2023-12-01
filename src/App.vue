@@ -2,13 +2,17 @@
   <div id="app">
     <h1>Vue Hotel Datepicker</h1>
     <h2>A vue.js date range picker for hotel and more.</h2>
+    <h3>Nivas fork https://github.com/nivas/vue-hotel-datepicker</h3>
     <div>
+      <a href="https://github.com/nivas/vue-hotel-datepicker" target="_blank" rel="noopener" title="View fork on Github" class="app-link">View fork on Github</a>
       <a href="https://github.com/northwalker/vue-hotel-datepicker" target="_blank" rel="noopener" title="View on Github" class="app-link">View on Github</a>
       <a href="https://github.com/northwalker/vue-hotel-datepicker/issues" target="_blank" rel="noopener" title="Report issue" class="app-link">Report issue</a>
     </div>
     <hr>
     <!--  -->
     <Demo />
+    <!-- modal demo -->
+    <Demo2 />
     <div class="text-center">
       <img alt="Vue logo" src="@/assets/vue-logo.png">
       <div>&copy; <a href="https://github.com/northwalker" target="_blank" rel="noopener" title="copyright" class="app-link">Northwalker</a></div>
@@ -18,11 +22,13 @@
 
 <script>
 import Demo from './views/Demo'
+import Demo2 from './views/Demo2'
 
 export default {
   name: 'app',
   components: {
-    Demo
+    Demo,
+    Demo2
   },
   data () {
     return {}

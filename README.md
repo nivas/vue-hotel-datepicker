@@ -1,3 +1,18 @@
+# Fork
+
+In order to build this **node v14** is currently required.
+
+List of improvements and customisations:
+
+- date selection reworked (version 7) so it feels more *"naturally"* in edge cases:
+  - changing already set selection sets new selection. it does not try to expand last selection or try to *"be smart"* about it
+  - selecting end date before start date now swaps dates and works correctly
+  - selection of same day is disabled but it continues to select end date correctly
+- `node-sass` replaced with more modern `sass` package (ex `dart-sass`) so it can be built on macOS arm64
+- added extra properties for custom message inside the date picker
+- added render method and open method
+
+#
 
 <a href="https://www.npmjs.com/package/@northwalker/vue-hotel-datepicker"><img src="https://img.shields.io/npm/v/@northwalker/vue-hotel-datepicker.svg?color=informational" alt="npm"></a>
 <a href="https://circleci.com/gh/northwalker/vue-hotel-datepicker/tree/master"><img src="https://img.shields.io/circleci/project/github/northwalker/vue-hotel-datepicker/master.svg?color=success" alt="build"></a>

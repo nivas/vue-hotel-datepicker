@@ -1,7 +1,7 @@
 self.__precacheManifest = [
   {
-    "revision": "2d6f40544ab4da079516",
-    "url": "/vue-hotel-datepicker/js/app.c7c2d4be.js"
+    "revision": "54f6e888d70f2b36e518",
+    "url": "/vue-hotel-datepicker/js/app.75e4a968.js"
   },
   {
     "revision": "5ef125f3e3f8ab3d9f7d",
@@ -12,7 +12,7 @@ self.__precacheManifest = [
     "url": "/vue-hotel-datepicker/img/vue-logo.82b9c7a5.png"
   },
   {
-    "revision": "889aedd79c412d918417522e5f88b9db",
+    "revision": "d5ad1b8f04fbae5591244f6af31acf0f",
     "url": "/vue-hotel-datepicker/index.html"
   }
 ];

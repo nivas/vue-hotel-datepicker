@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import VueHotelDatepickerModal from './components/VueHotelDatepickerModal.vue'
+import VueHotelDatepickerModal from './../components/VueHotelDatepickerModal.vue'
 
 export default {
   name: 'Demo2',

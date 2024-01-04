@@ -225,14 +225,13 @@ export default {
       this.updateCalendar() // after setting
     },
     toggle (e) {
-      console.log('toggle', e)
       if (e.type === 'focus') {
+        this.$emit('beforeopen')
         this.active = true
         this.$emit('open')
         return true
       }
       this.active = !this.active
-      console.log('emitting', (this.active ? 'open' : 'close'))
       this.$emit(this.active ? 'open' : 'close')
     },
     close () {
@@ -347,7 +346,7 @@ export default {
       this.endMonthAry = this.generateCalendar(this.endMonthDate.getFullYear(), this.endMonthDate.getMonth())
     },
     updateValue () {
-      this.value = `${this.displayDateText(this.selectStartDate)} ${this.separator} ${this.displayDateText(this.selectEndDate)}`
+      this.value = `${this.displayDateText(this.selectStartDate) || ''} ${this.separator} ${this.displayDateText(this.selectEndDate) || ''}`
     },
     disabledPreviousArrow (monthDatetime) {
       const now = new Date()
@@ -464,10 +463,7 @@ export default {
           end: this.displayDateText(this.selectEndDate)
         }
         this.$emit('update', dateResult)
-
-        if (this.selectStartDate && this.selectEndDate) {
-          this.updateValue()
-        }
+        this.updateValue()
       }
     }
   }

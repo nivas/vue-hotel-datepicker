@@ -10,6 +10,8 @@
     </div>
     <hr>
     <!--  -->
+    <DemoDisabled />
+    <!--  -->
     <Demo />
     <!-- modal demo -->
     <Demo2 />
@@ -23,12 +25,14 @@
 <script>
 import Demo from './views/Demo'
 import Demo2 from './views/Demo2'
+import DemoDisabled from './views/DemoDisabled'
 
 export default {
   name: 'app',
   components: {
     Demo,
-    Demo2
+    Demo2,
+    DemoDisabled
   },
   data () {
     return {}

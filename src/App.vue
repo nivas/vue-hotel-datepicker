@@ -14,7 +14,7 @@
     <!--  -->
     <Demo />
     <!-- modal demo -->
-    <Demo2 />
+    <DemoModal />
     <div class="text-center">
       <img alt="Vue logo" src="@/assets/vue-logo.png">
       <div>&copy; <a href="https://github.com/northwalker" target="_blank" rel="noopener" title="copyright" class="app-link">Northwalker</a></div>
@@ -24,14 +24,14 @@
 
 <script>
 import Demo from './views/Demo'
-import Demo2 from './views/Demo2'
+import DemoModal from './views/DemoModal'
 import DemoDisabled from './views/DemoDisabled'
 
 export default {
   name: 'app',
   components: {
     Demo,
-    Demo2,
+    DemoModal,
     DemoDisabled
   },
   data () {

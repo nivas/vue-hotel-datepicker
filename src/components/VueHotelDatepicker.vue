@@ -179,7 +179,7 @@ export default {
     },
     useDiagonalStartEnd: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   data () {
@@ -216,7 +216,7 @@ export default {
   mounted () {},
   methods: {
     render () {
-      // --- Min/Max Date Initialization ---
+      // Min/Max Date Initialization
       if (this.minDate) {
         const minDateValue = typeof (this.minDate) === 'string' ? this.minDate : this.minDate.getTime()
         this.selectMinDate = new Date(minDateValue)
@@ -228,7 +228,7 @@ export default {
         this.selectMaxDate.setHours(0, 0, 0, 0) // Normalize time
       }
 
-      // --- Initial Start/End Date Initialization ---
+      // Initial Start/End Date Initialization
       let initialStartDate = null
       let initialEndDate = null
 
@@ -253,7 +253,7 @@ export default {
         // initialEndDate = new Date(initialStartDate.getTime() + (24 * 60 * 60 * 1000))
       }
 
-      // --- Validate and Set Initial Range ---
+      // Validate and Set Initial Range
       // Important: Validate initial range against disabled dates *before* setting
       if (initialStartDate && initialEndDate) {
         const start = initialStartDate.getTime()
@@ -296,7 +296,7 @@ export default {
         }
       }
 
-      // --- Calendar Rendering ---
+      // Calendar Rendering
       this.updateCalendar() // after setting potential dates
     },
 
@@ -474,6 +474,10 @@ export default {
       return false // Return false instead of undefined for cleaner checks
     },
     dayStatus (datetime) {
+      let selectableDisabledClassName = 'selectable-disabled'
+      if (this.useDiagonalStartEnd) {
+        selectableDisabledClassName = 'selectable-disabled-diagonal'
+      }
       const classList = []
       if (datetime) {
         const now = new Date()
@@ -494,7 +498,7 @@ export default {
           classList.push('today')
         }
 
-        // --- Logic when selecting the second date ---
+        // Logic when selecting the second date
         if (this.selectStartDate && !this.selectEndDate) {
           const startTime = this.selectStartDate.getTime()
 
@@ -527,7 +531,7 @@ export default {
             isGenerallyDisabled = true
           }
 
-          // --- Apply 'selectable-disabled' ---
+          // Apply 'selectable-disabled'
           // Condition:
           // 1. Must be disabled by the prop (`isDisabledByProp`)
           // 2. Must NOT be generally disabled by other rules (`!isGenerallyDisabled`)
@@ -549,30 +553,30 @@ export default {
 
             // Add the class only if it passes the intervening check for the final range
             if (!interveningDisabledOnClick) {
-              classList.push('selectable-disabled')
+              classList.push(selectableDisabledClassName)
             }
           }
           // END Apply 'selectable-disabled'
         }
-        // --- END Logic when selecting the second date ---
+        // END Logic when selecting the second date
 
-        // --- Apply Final Disabled/Forbidden Classes ---
+        // Apply Final Disabled/Forbidden Classes
         // A date gets 'disabled' if:
         // - It's generally disabled (base, nights, intervening for current selection)
         // - OR it's disabled by prop AND it hasn't been marked as 'selectable-disabled'
-        if (isGenerallyDisabled || (isDisabledByProp && !classList.includes('selectable-disabled'))) {
+        if (isGenerallyDisabled || (isDisabledByProp && !classList.includes(selectableDisabledClassName))) {
           if (!classList.includes('disabled')) { // Avoid duplicates
             classList.push('disabled')
           }
           // Add 'forbidden' specifically for dates disabled by prop, unless they are 'selectable-disabled'
-          if (isDisabledByProp && !classList.includes('selectable-disabled')) {
+          if (isDisabledByProp && !classList.includes(selectableDisabledClassName)) {
             if (!classList.includes('forbidden')) {
               classList.push('forbidden')
             }
           }
         }
 
-        // --- Apply Range Selection Styles ---
+        // Apply Range Selection Styles
         // (These can override/coexist with other classes based on the final valid selection)
         if (this.selectStartDate && this.selectStartDate.getTime() === time) {
           // Start date should never be visually disabled
@@ -580,7 +584,7 @@ export default {
           if (disabledIndex > -1) classList.splice(disabledIndex, 1)
           const forbiddenIndex = classList.indexOf('forbidden')
           if (forbiddenIndex > -1) classList.splice(forbiddenIndex, 1)
-          const selectableIndex = classList.indexOf('selectable-disabled') // Should not happen, but safety
+          const selectableIndex = classList.indexOf(selectableDisabledClassName) // Should not happen, but safety
           if (selectableIndex > -1) classList.splice(selectableIndex, 1)
 
           classList.push(this.useDiagonalStartEnd ? 'start-date-diagonal' : 'start-date')
@@ -603,7 +607,7 @@ export default {
             classList.push('in-date-range') // Ensure it has the range class
           }
         }
-        // --- END Apply Range Selection Styles ---
+        // END Apply Range Selection Styles
       } else {
         classList.push('empty') // Class for empty cells
       }
@@ -619,7 +623,7 @@ export default {
       const clickedDateStr = this.displayDateText(datetime)
       const isClickedDateDisabled = this.formattedDisabledDates.includes(clickedDateStr)
 
-      // --- Prevent clicking fundamentally disabled dates (min/max date) ---
+      // Prevent clicking fundamentally disabled dates (min/max date)
       if (
         (this.selectMinDate && clickedTime < this.selectMinDate.getTime()) ||
             (this.selectMaxDate && clickedTime > this.selectMaxDate.getTime())
@@ -632,7 +636,7 @@ export default {
       const currentStartDate = this.selectStartDate
       const currentEndDate = this.selectEndDate // Needed to check if we are starting a new selection
 
-      // --- Scenario 1: Start a new selection ---
+      // Scenario 1: Start a new selection
       if (!currentStartDate || (currentStartDate && currentEndDate)) {
         if (isClickedDateDisabled) {
           // console.log('Click ignored: Cannot start selection with a disabled date.');
@@ -646,7 +650,7 @@ export default {
         return // Done for this click
       }
 
-      // --- Scenario 2: A start date exists, but no end date (selecting the second date) ---
+      // Scenario 2: A start date exists, but no end date (selecting the second date)
       if (currentStartDate && !currentEndDate) {
         const currentStartTime = currentStartDate.getTime()
 
@@ -705,7 +709,7 @@ export default {
           return
         }
 
-        // --- Validation passed, commit selection ---
+        // Validation passed, commit selection
         this.selectStartDate = potentialStartDate
         this.selectEndDate = potentialEndDate
         // console.log('Selection complete:', potentialStartDateStr, '~', potentialEndDateStr);
@@ -991,6 +995,12 @@ svg {
               pointer-events: none;
             }
             &.selectable-disabled {
+              // background-color: #ffe7e7;
+              border: 1px dashed #e57373;
+              color: #a94442;
+              cursor: pointer;
+            }
+            &.selectable-disabled-diagonal {
               position: relative;
               overflow: hidden;
               border: 1px dashed #e57373;
@@ -1026,15 +1036,6 @@ svg {
                 z-index: 1;
               }
             }
-
-            /*
-            &.selectable-disabled {
-              background-color: #ffe7e7;
-              border: 1px dashed #e57373;
-              color: #a94442;
-              cursor: pointer;
-            }
-            */
             &.in-date-range {
               background-color: #B2D7FF;
             }

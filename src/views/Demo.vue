@@ -39,13 +39,23 @@
     </div>
     <div class="demo-example">
       <p>
-        10. Disable some dates
+        10a. Disable some dates (useDiagonalStartEnd: false)
         <span v-for="(date, index) in disabledDates" :key="index">
           <code>{{ date }}</code>
           <span v-if="index !== disabledDates.length - 1">, </span>
         </span>
       </p>
       <VueHotelDatepicker :disabledDates="disabledDates"/>
+    </div>
+    <div class="demo-example">
+      <p>
+        10b. Disable some dates with useDiagonalStartEnd: true
+        <span v-for="(date, index) in disabledDates" :key="index">
+          <code>{{ date }}</code>
+          <span v-if="index !== disabledDates.length - 1">, </span>
+        </span>
+      </p>
+      <VueHotelDatepicker :disabledDates="disabledDates" :useDiagonalStartEnd="true"/>
     </div>
     <div class="demo-example">
       <p>11. Use datepicker in another language (ex: 繁體中文)</p>
@@ -132,5 +142,18 @@ export default {
     background-color: #ececec;
     border-radius: 4px;
   }
+  .btn {
+    padding: 8px 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+  .btn:hover {
+    background-color: #0056b3;
+  }
+
 }
 </style>

@@ -1,7 +1,7 @@
 {
-  "name": "@northwalker/vue-hotel-datepicker",
-  "version": "2.0.7",
-  "description": "A vue.js date range picker for hotel and more.",
+  "name": "@nivashr/vue-hotel-datepicker",
+  "version": "2.3.0",
+  "description": "A customizable hotel date-picker component for Vue 2 (forked and improved)",
   "main": "lib/vue-hotel-datepicker.umd.js",
   "module": "lib/vue-hotel-datepicker.esm.js",
   "unpkg": "lib/vue-hotel-datepicker.min.js",
@@ -20,13 +20,18 @@
     "postbuild": "rm -rf ./docs && cp -rf ./dist ./docs "
   },
   "author": "Northwalker <northwalker28@gmail.com>",
+  "contributors": [
+    {"name":"Neven Jacmenović","url":"https://github.com/guycalledseven"},
+    {"name":"Rudolf Jozanović","url":"https://github.com/nivas"}
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/northwalker/vue-hotel-datepicker.git"
+    "url": "git+https://github.com/nivas/vue-hotel-datepicker.git"
   },
   "keywords": [
     "vue",
+    "vue2",
     "vuejs",
     "datepicker",
     "date picker",
@@ -36,9 +41,9 @@
     "vue hotel datepicker"
   ],
   "bugs": {
-    "url": "https://github.com/northwalker/vue-hotel-datepicker/issues"
+    "url": "https://github.com/nivas/vue-hotel-datepicker/issues"
   },
-  "homepage": "https://github.com/northwalker/vue-hotel-datepicker#readme",
+  "homepage": "https://github.com/nivas/vue-hotel-datepicker#readme",
   "dependencies": {},
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",

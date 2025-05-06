@@ -1,9 +1,13 @@
-# Fork
+# Fork info
 
 In order to build this **node v14** is currently required.
 
+As original, currently it supports only vue 2.
+
 List of improvements and customisations:
 
+- date selection reworked again (version 8) in relation with diagonal start end selector and selecting disabled end date
+  - new property `useDiagonalStartEnd` true/false
 - date selection reworked (version 7) so it feels more *"naturally"* in edge cases:
   - changing already set selection sets new selection. it does not try to expand last selection or try to *"be smart"* about it
   - selecting end date before start date now swaps dates and works correctly
@@ -29,10 +33,10 @@ A pure [Vue.js](https://vuejs.org/) date range picker component without any othe
 [https://northwalker.github.io/vue-hotel-datepicker/](https://northwalker.github.io/vue-hotel-datepicker/)
 
 ### Desktop capture preview
-<img style="border-radius: 6px; box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);" src="https://raw.githubusercontent.com/northwalker/vue-hotel-datepicker/master/demo_vue_hotel_picker_desktop.png" />
+<img style="border-radius: 6px; box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);" src="https://raw.githubusercontent.com/nivas/vue-hotel-datepicker/master/demo_vue_hotel_picker_desktop.png" />
 
 ### Mobile capture preview
-<img style="border-radius: 6px; box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);" src="https://raw.githubusercontent.com/northwalker/vue-hotel-datepicker/master/demo_vue_hotel_picker_mobile.png" />
+<img style="border-radius: 6px; box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);" src="https://raw.githubusercontent.com/nivas/vue-hotel-datepicker/master/demo_vue_hotel_picker_mobile.png" />
 
 ### Previous version
 v1.0.0: [Document](https://github.com/northwalker/vue-hotel-datepicker/tree/v1.0.0)
@@ -41,9 +45,9 @@ v1.0.0: [Document](https://github.com/northwalker/vue-hotel-datepicker/tree/v1.0
 
 Use ```npm``` or ```yarn``` for installation
 ```bash
-$ npm install @northwalker/vue-hotel-datepicker
+$ npm install @nivashr/vue-hotel-datepicker
 # OR
-$ yarn add @northwalker/vue-hotel-datepicker
+$ yarn add @nivashr/vue-hotel-datepicker
 ```
 
 ## Usage
@@ -56,7 +60,7 @@ Method 1: Import component in `.vue` file
 </template>
 
 <script>
-import VueHotelDatepicker from '@northwalker/vue-hotel-datepicker'
+import VueHotelDatepicker from '@nivashr/vue-hotel-datepicker'
 export default {
   name: 'App'
   components: {
@@ -206,6 +210,19 @@ Text of button "Confirm"
 
 Display in mobile or desktop date picker style version, default will depend on common brower's width.
 
+### message
+ - Type: `String`
+ - Default: `''`
+
+Display customizable text inside the picker.
+
+### useDiagonalStartEnd
+ - Type: `Boolean`
+ - Default: `''`
+ - value: `'true'` or `'false'` 
+
+If enabled it will use diagonal start and end dates.
+
 ## Events
 
 ### update
@@ -230,5 +247,7 @@ when a reset button click or occurred, ```VueHotelDatepicker``` will emit an eve
 
 ## License
 [MIT License](http://opensource.org/licenses/MIT)
+
+Copyright &copy; 2025 [Nivas](https://nivas.hr) 
 
 Copyright &copy; 2019 [Northwalker](https://northwalker.github.io)

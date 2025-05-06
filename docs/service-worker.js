@@ -14,10 +14,10 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/vue-hotel-datepicker/precache-manifest.dc68cbdac2f92f75878f6f147591ee9b.js"
+  "/vue-hotel-datepicker/precache-manifest.6a0378387ebb0f2ec5c0ab8b5bba45ec.js"
 );
 
-workbox.core.setCacheNameDetails({prefix: "@northwalker/vue-hotel-datepicker"});
+workbox.core.setCacheNameDetails({prefix: "@nivashr/vue-hotel-datepicker"});
 
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to

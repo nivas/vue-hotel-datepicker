@@ -21,8 +21,14 @@
   },
   "author": "Northwalker <northwalker28@gmail.com>",
   "contributors": [
-    {"name":"Neven Jacmenović","url":"https://github.com/guycalledseven"},
-    {"name":"Rudolf Jozanović","url":"https://github.com/nivas"}
+    {
+      "name": "Neven Jacmenović",
+      "url": "https://github.com/guycalledseven"
+    },
+    {
+      "name": "Rudolf Jozanović",
+      "url": "https://github.com/nivas"
+    }
   ],
   "license": "MIT",
   "repository": {

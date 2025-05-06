@@ -1,6 +1,6 @@
 {
   "name": "@nivashr/vue-hotel-datepicker",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A customizable hotel date-picker component for Vue 2 (forked and improved)",
   "main": "lib/vue-hotel-datepicker.umd.js",
   "module": "lib/vue-hotel-datepicker.esm.js",

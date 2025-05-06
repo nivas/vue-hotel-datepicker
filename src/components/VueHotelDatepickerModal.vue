@@ -116,7 +116,7 @@ import IconArrowBack from '@/components/icon/IconArrowBack'
 import IconArrowForward from '@/components/icon/IconArrowForward'
 
 export default {
-  name: 'VueHotelDatepickerModal', // Changed name slightly for clarity if used alongside non-modal
+  name: 'VueHotelDatepickerModal',
   components: {
     IconClose,
     IconArrowBack,
@@ -127,7 +127,6 @@ export default {
       type: Boolean,
       default: false
     },
-    // Initial selected dates
     start: {
       type: [String, Date],
       default: undefined
@@ -136,7 +135,6 @@ export default {
       type: [String, Date],
       default: undefined
     },
-    // Configuration props from non-modal
     separator: {
       type: String,
       default: '~'
@@ -177,7 +175,6 @@ export default {
       type: Array,
       default: () => ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct', 'Nov.', 'Dec.']
     },
-    // Text props
     fromText: {
       type: String,
       default: 'From'
@@ -198,8 +195,7 @@ export default {
       type: String,
       default: 'Apply'
     },
-    // Visual/behavioral props
-    mobile: { // For potential future styling, not directly used in this modal's base structure
+    mobile: {
       type: String,
       default: ''
     },
@@ -226,38 +222,102 @@ export default {
       selectMaxDate: undefined,
       startMonthAry: [],
       endMonthAry: [],
-      formattedDisabledDates: []
+      formattedDisabledDates: [],
+      disabledDateTimestamps: [] // Added for numeric timestamps
     }
   },
   watch: {
     active (isActive) {
       if (isActive) {
-        this.render()
-        // Optionally, add body scroll lock here
-      } else {
-        // Optionally, remove body scroll lock here
+        this.render() // Re-initialize and render when modal becomes active
       }
     },
-    // Watchers for dynamic prop changes that should trigger a re-render
+    // Watchers for dynamic prop changes that should trigger a re-render if modal is active
     start () { if (this.active) this.render() },
     end () { if (this.active) this.render() },
     minDate () { if (this.active) this.render() },
     maxDate () { if (this.active) this.render() },
+
     disabledDates: {
       immediate: true,
-      handler (newVal, oldVal) {
-        this.formattedDisabledDates = (newVal || []).map(d => this.displayDateText(new Date(d)))
-        if (this.active && JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-          this.updateCalendar() // Re-generate calendar arrays and update view
+      handler (newVal) {
+        const rawDates = newVal || []
+
+        // 1. Update internal representations of disabled dates
+        this.formattedDisabledDates = rawDates.map(d => {
+          const dateObj = new Date(d) // Assuming 'd' from prop is reliably parsable
+          if (isNaN(dateObj.getTime())) {
+            console.error(`[VHD Modal] Invalid date string "${d}" in disabledDates prop. Ignored for formatted list.`)
+            return null
+          }
+          return this.displayDateText(dateObj) // Format according to this.format
+        }).filter(Boolean)
+
+        this.disabledDateTimestamps = rawDates.map(d => {
+          const dateObj = new Date(d)
+          if (isNaN(dateObj.getTime())) {
+            console.error(`[VHD Modal] Invalid date string "${d}" in disabledDates prop. Ignored for timestamps.`)
+            return null
+          }
+          dateObj.setHours(0, 0, 0, 0) // Normalize
+          return dateObj.getTime()
+        }).filter(timestamp => timestamp !== null)
+
+        // 2. Validate current selection against the new disabled dates
+        // This should run even if the modal is not 'active' to keep internal state consistent
+        let selectionInvalidated = false
+
+        if (this.selectStartDate) {
+          const startDateStr = this.displayDateText(this.selectStartDate)
+          if (this.formattedDisabledDates.includes(startDateStr)) {
+            console.warn('[VHD Modal] Current start date became disabled. Resetting selection.')
+            this.selectStartDate = undefined
+            this.selectEndDate = undefined
+            selectionInvalidated = true
+          }
+        }
+
+        if (this.selectEndDate && !selectionInvalidated) {
+          const endDateStr = this.displayDateText(this.selectEndDate)
+          if (this.formattedDisabledDates.includes(endDateStr)) {
+            console.warn('[VHD Modal] Current end date became disabled. Resetting end date.')
+            this.selectEndDate = undefined
+            selectionInvalidated = true
+          }
+        }
+
+        if (this.selectStartDate && this.selectEndDate && !selectionInvalidated) {
+          const start = this.selectStartDate.getTime()
+          const end = this.selectEndDate.getTime()
+          const interveningDisabled = this.disabledDateTimestamps.some(dTimestamp => {
+            return dTimestamp > start && dTimestamp < end
+          })
+          if (interveningDisabled) {
+            console.warn('[VHD Modal] Current selection now includes an intervening disabled date. Resetting selection.')
+            this.selectStartDate = undefined
+            this.selectEndDate = undefined
+            selectionInvalidated = true
+          }
+        }
+
+        if (selectionInvalidated) {
+          this.$emit('selection-invalidated', { start: null, end: null })
+          if (this.active) { // Only update calendar display if modal is active
+            this.updateCalendar()
+          }
+        } else if (this.active) {
+          // If selection is still valid but disabled dates changed,
+          // we might need to re-render the calendar to update day statuses
+          this.updateCalendar()
         }
       }
     }
   },
   created () {
-    // Initial render if component is created with active=true
     if (this.active) {
       this.render()
     }
+    // If not active, disabledDates watcher (immediate:true) will still process initial disabledDates
   },
   methods: {
     handleOverlayClick () {
@@ -272,7 +332,9 @@ export default {
         this.selectMinDate = new Date(minDateValue)
         this.selectMinDate.setHours(0, 0, 0, 0)
       } else {
-        this.selectMinDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 0, 0, 0)
+        // Default minDate if not provided
+        this.selectMinDate = new Date()
+        this.selectMinDate.setHours(0, 0, 0, 0)
       }
 
       if (this.maxDate) {
@@ -280,10 +342,9 @@ export default {
         this.selectMaxDate = new Date(maxDateValue)
         this.selectMaxDate.setHours(0, 0, 0, 0)
       } else {
-        this.selectMaxDate = null
+        this.selectMaxDate = null // No max date
       }
 
-      // Initial Start/End Date Initialization
       let initialStartDate = null
       let initialEndDate = null
 
@@ -297,34 +358,30 @@ export default {
         const endDateValue = typeof (this.end) === 'string' ? this.end : new Date(this.end).getTime()
         initialEndDate = new Date(endDateValue)
         initialEndDate.setHours(0, 0, 0, 0)
-      } else if (initialStartDate && !this.end && !this.minNight && !this.maxNight) { // if only start is provided, and no night restrictions
-        // Default end date if only start date is provided (e.g., 1 night) - This was removed in new logic, let user click
       }
 
-      // Reset current selections before applying initial ones
-      this.selectStartDate = undefined
+      this.selectStartDate = undefined // Reset internal selection
       this.selectEndDate = undefined
 
-      // Validate and Set Initial Range
+      // Validate and Set Initial Range from props
       if (initialStartDate && initialEndDate) {
         const startTs = initialStartDate.getTime()
         const endTs = initialEndDate.getTime()
         const startStr = this.displayDateText(initialStartDate)
-        const endStr = this.displayDateText(initialEndDate)
 
         const startIsDisabledByProp = this.formattedDisabledDates.includes(startStr)
-        const endIsDisabledByProp = this.formattedDisabledDates.includes(endStr)
+        // End date being disabled by prop is checked by dayStatus/dayOnClick for selectable-disabled
 
-        const interveningDisabled = this.formattedDisabledDates.some(disabledStr => {
-          const dTime = new Date(disabledStr).getTime()
-          return dTime > startTs && dTime < endTs
+        // Check for disabled dates strictly between the initial start and end using timestamps
+        const interveningDisabled = this.disabledDateTimestamps.some(dTimestamp => {
+          return dTimestamp > startTs && dTimestamp < endTs
         })
 
         const validAgainstMinMax =
             !(this.selectMinDate && startTs < this.selectMinDate.getTime()) &&
             !(this.selectMaxDate && endTs > this.selectMaxDate.getTime())
 
-        if (validAgainstMinMax && !startIsDisabledByProp && !interveningDisabled && (!endIsDisabledByProp || (endIsDisabledByProp && !this.formattedDisabledDates.some(dStr => { const dTime = new Date(dStr).getTime(); return dTime > startTs && dTime < endTs })))) {
+        if (validAgainstMinMax && !startIsDisabledByProp && !interveningDisabled) {
           this.selectStartDate = initialStartDate
           this.selectEndDate = initialEndDate
         } else {
@@ -342,41 +399,39 @@ export default {
           console.warn('[VHD Modal] Initial start prop conflicts with disabledDates or min/max dates.')
         }
       }
-      this.updateCalendar()
+      this.updateCalendar() // Always update calendar view after processing initial dates
     },
 
     handleApply () {
       if (this.selectStartDate && this.selectEndDate) {
         const dateResult = {
-          start: this.selectStartDate, // Emit actual Date objects or formatted strings
-          end: this.selectEndDate,
+          start: new Date(this.selectStartDate.getTime()), // Emit fresh Date objects
+          end: new Date(this.selectEndDate.getTime()),
           startFormatted: this.displayDateText(this.selectStartDate),
           endFormatted: this.displayDateText(this.selectEndDate)
         }
         this.$emit('apply', dateResult)
-        // this.$emit('update:active', false); // Or let parent control 'active'
       } else {
-        // Optionally show a message if trying to apply without a full selection
-        console.warn('[VHD Modal] Apply clicked without a complete date range selected.')
         this.$emit('error', 'Please select a valid start and end date.')
       }
     },
     handleCancel () {
       this.$emit('cancel')
-      // this.$emit('update:active', false); // Or let parent control 'active'
-      // Optionally, reset selection on cancel:
-      // this.handleReset();
     },
     handleReset () {
       this.selectStartDate = undefined
       this.selectEndDate = undefined
-      this.$emit('reset-selection')
-      this.updateCalendar() // Re-render calendar
+      this.$emit('reset-selection') // Specific event for selection reset
+      this.updateCalendar()
     },
 
     displayDateText (datetime) {
       if (!datetime) return undefined
-      const d = typeof (datetime) === 'string' ? new Date(datetime) : new Date(datetime.getTime())
+      const d = datetime instanceof Date ? new Date(datetime.getTime()) : new Date(datetime)
+      if (isNaN(d.getTime())) {
+        // console.error('[VHD Modal] displayDateText received an invalid date:', datetime);
+        return undefined
+      }
       const yyyy = d.getFullYear()
       const mm = d.getMonth() + 1 > 9 ? d.getMonth() + 1 : `0${d.getMonth() + 1}`
       const dd = d.getDate() > 9 ? d.getDate() : `0${d.getDate()}`
@@ -389,43 +444,67 @@ export default {
       const baseDateTime = new Date(calculateYear, calculateMonth, 1, 0, 0, 0)
       let countTime = new Date(calculateYear, calculateMonth, 1, 0, 0, 0)
       let tempMonthAry = []
-      let tempWeekAry = []
+      let tempWeekAry = new Array(7).fill(null) // Initialize with nulls for proper indexing
       let nextMonth = false
       let completed = false
+
       while (!nextMonth || (nextMonth && !completed)) {
-        let day = countTime.getDay()
-        // let date = countTime.getDate() // Not used
-        let month = countTime.getMonth()
-        if (month !== calculateMonth) {
+        let dayOfWeek = countTime.getDay()
+        let currentMonth = countTime.getMonth()
+
+        if (currentMonth !== calculateMonth) {
           nextMonth = true
-          if (day === 6 || (/* date === 1 && */ day === 0)) { // date === 1 check is redundant if month !== calculateMonth
-            completed = true
+          // Stop if we've filled the last week of the next month shown or if it's beyond Sunday of the first week of next month
+          if (dayOfWeek === 0 || tempWeekAry.every(d => d === false || d === null)) {
+            if (tempWeekAry.some(d => d instanceof Date && d.getMonth() === calculateMonth)) {
+              // if the week still contains days from the target month, push it.
+            } else {
+              completed = true // Avoid pushing an empty or all-false week from too far into the next month
+            }
+          }
+          if (tempMonthAry.length > 4 && dayOfWeek === 0) completed = true // Safety break for too many weeks.
+        }
+
+        if (!nextMonth) { // Current month's days
+          tempWeekAry[dayOfWeek] = new Date(countTime.getTime())
+        } else { // Next month's days (if shown)
+          if (showNextMonthDate && !completed) { // Ensure we don't fill too far
+            tempWeekAry[dayOfWeek] = new Date(countTime.getTime())
+          } else {
+            tempWeekAry[dayOfWeek] = false
           }
         }
-        if (!nextMonth) {
-          tempWeekAry[day] = new Date(countTime.getTime())
-        } else {
-          tempWeekAry[day] = showNextMonthDate ? new Date(countTime.getTime()) : false
-        }
-        if (countTime.getTime() === baseDateTime.getTime() && day !== 0) {
-          let previousDay = day
-          let previousCountTimeInstance = new Date(countTime.getTime()) // Use a new instance
-          // previousCountTimeInstance.setDate(previousCountTimeInstance.getDate()) // No effect
+
+        // Fill previous month's days for the first week
+        if (countTime.getTime() === baseDateTime.getTime() && dayOfWeek !== 0) {
+          let prevDay = dayOfWeek
+          let prevCountTime = new Date(countTime.getTime())
           if (showPreviousMonthDate) {
-            while (previousDay !== 0) {
-              previousCountTimeInstance.setDate(previousCountTimeInstance.getDate() - 1) // Decrement first
-              previousDay = previousCountTimeInstance.getDay() // Get day of new date
-              tempWeekAry[previousDay] = new Date(previousCountTimeInstance.getTime())
+            while (prevDay > 0) {
+              prevDay--
+              prevCountTime.setDate(prevCountTime.getDate() - 1)
+              tempWeekAry[prevDay] = new Date(prevCountTime.getTime())
+            }
+          } else {
+            while (prevDay > 0) {
+              prevDay--
+              tempWeekAry[prevDay] = false
             }
           }
         }
-        if ((countTime.getTime() === baseDateTime.getTime() && tempWeekAry.length === 7) ||
-                (countTime.getTime() > baseDateTime.getTime() && day === 6)) {
-          tempMonthAry.push([...tempWeekAry]) // Push a copy
-          tempWeekAry = []
+
+        if (dayOfWeek === 6) { // End of the week
+          tempMonthAry.push([...tempWeekAry])
+          tempWeekAry = new Array(7).fill(null)
+          if (nextMonth && completed) break // Break if we finished the last relevant week
         }
         countTime.setDate(countTime.getDate() + 1)
       }
+      // If the loop finishes mid-week for the last week, push it
+      if (tempWeekAry.some(d => d !== null) && !completed) {
+        tempMonthAry.push([...tempWeekAry.map(d => d === null ? false : d)])
+      }
+
       return tempMonthAry
     },
 
@@ -438,12 +517,16 @@ export default {
             : new Date(new Date().getFullYear(), new Date().getMonth())
       }
 
-      this.startMonthDate = new Date(this.startMonthDate.getFullYear(), this.startMonthDate.getMonth() + offset, 1)
+      // Create a new Date object for month manipulation to avoid side effects
+      let newStartMonth = new Date(this.startMonthDate.getTime())
+      newStartMonth.setDate(1) // Ensure we are on the 1st for month calculations
+      newStartMonth.setMonth(newStartMonth.getMonth() + offset)
+      this.startMonthDate = newStartMonth
 
       if (this.selectMinDate && this.selectForward) {
-        const minMonth = new Date(this.selectMinDate.getFullYear(), this.selectMinDate.getMonth())
-        if (this.startMonthDate.getTime() < minMonth.getTime()) {
-          this.startMonthDate = minMonth
+        const minCalendarMonth = new Date(this.selectMinDate.getFullYear(), this.selectMinDate.getMonth(), 1)
+        if (this.startMonthDate.getTime() < minCalendarMonth.getTime()) {
+          this.startMonthDate = minCalendarMonth
         }
       }
 
@@ -454,21 +537,16 @@ export default {
     },
 
     disabledPreviousArrow (monthDatetime) {
-      // const now = new Date() // Not strictly needed if selectMinDate is the reference
-      // const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
-      if (monthDatetime && this.selectForward) { // monthDatetime is startMonthDate
+      if (monthDatetime && this.selectForward) {
+        const currentDisplayMonth = new Date(monthDatetime.getFullYear(), monthDatetime.getMonth(), 1)
+        let referenceMonth
         if (this.selectMinDate) {
-          // Compare year and month only
-          const currentDisplayMonth = new Date(monthDatetime.getFullYear(), monthDatetime.getMonth(), 1)
-          const minSelectableMonth = new Date(this.selectMinDate.getFullYear(), this.selectMinDate.getMonth(), 1)
-          if (currentDisplayMonth.getTime() <= minSelectableMonth.getTime()) {
-            return 'disabled'
-          }
+          referenceMonth = new Date(this.selectMinDate.getFullYear(), this.selectMinDate.getMonth(), 1)
         } else {
-          const todayMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-          if (monthDatetime.getTime() <= todayMonth.getTime()) {
-            return 'disabled'
-          }
+          referenceMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+        }
+        if (currentDisplayMonth.getTime() <= referenceMonth.getTime()) {
+          return 'disabled'
         }
       }
       return false
@@ -490,35 +568,42 @@ export default {
 
         if (time === now.getTime()) classList.push('today')
 
-        if (this.selectStartDate && !this.selectEndDate) {
+        if (this.selectStartDate && !this.selectEndDate) { // Logic when selecting the end date
           const startTime = this.selectStartDate.getTime()
           const minCheck = Math.min(startTime, time)
           const maxCheck = Math.max(startTime, time)
-          const interveningDisabledCheck = this.formattedDisabledDates.some(dStr => {
-            const dTime = new Date(dStr).getTime()
-            return dTime > minCheck && dTime < maxCheck
+
+          // Use disabledDateTimestamps for intervening check
+          const interveningDisabledCheck = this.disabledDateTimestamps.some(dTimestamp => {
+            return dTimestamp > minCheck && dTimestamp < maxCheck
           })
+
           let violatesNights = false
           if (time !== startTime) {
             const nights = Math.abs(time - startTime) / (1000 * 60 * 60 * 24)
             if (this.minNight && nights < this.minNight) violatesNights = true
             if (this.maxNight && nights > this.maxNight) violatesNights = true
           }
+
           if (time !== startTime && (violatesNights || interveningDisabledCheck)) {
             isGenerallyDisabled = true
           }
+
+          // Apply 'selectable-disabled'
           if (isDisabledByProp && !isGenerallyDisabled && time > startTime) {
             const potentialStartTime = startTime
-            const potentialEndTime = time
-            const interveningDisabledOnClick = this.formattedDisabledDates.some(dStr => {
-              if (dStr === display) return false
-              const dTime = new Date(dStr).getTime()
-              return dTime > potentialStartTime && dTime < potentialEndTime
+            const potentialEndTime = time // This is 'datetime.getTime()'
+
+            // Use disabledDateTimestamps, excluding the potential end date itself from "intervening"
+            const interveningDisabledOnClick = this.disabledDateTimestamps.some(dTimestamp => {
+              if (dTimestamp === potentialEndTime) return false
+              return dTimestamp > potentialStartTime && dTimestamp < potentialEndTime
             })
             if (!interveningDisabledOnClick) classList.push(selectableDisabledClassName)
           }
         }
 
+        // Apply Final Disabled/Forbidden Classes
         if (isGenerallyDisabled || (isDisabledByProp && !classList.includes(selectableDisabledClassName))) {
           if (!classList.includes('disabled')) classList.push('disabled')
           if (isDisabledByProp && !classList.includes(selectableDisabledClassName)) {
@@ -526,6 +611,7 @@ export default {
           }
         }
 
+        // Apply Range Selection Styles
         if (this.selectStartDate && this.selectStartDate.getTime() === time) {
           ['disabled', 'forbidden', selectableDisabledClassName].forEach(cls => {
             const index = classList.indexOf(cls)
@@ -534,12 +620,12 @@ export default {
           classList.push(this.useDiagonalStartEnd ? 'start-date-diagonal' : 'start-date')
         } else if (this.selectEndDate && this.selectEndDate.getTime() === time) {
           const forbiddenIndex = classList.indexOf('forbidden')
-          if (forbiddenIndex > -1) classList.splice(forbiddenIndex, 1)
+          if (forbiddenIndex > -1) classList.splice(forbiddenIndex, 1) // End date can be disabled, but not "forbidden" if it's the selected end
           classList.push(this.useDiagonalStartEnd ? 'end-date-diagonal' : 'end-date')
         } else if (this.selectStartDate && this.selectEndDate && time > this.selectStartDate.getTime() && time < this.selectEndDate.getTime()) {
           if (!classList.includes('disabled')) {
             classList.push('in-date-range')
-          } else {
+          } else { // A date within an active selection range should not be visually 'disabled'
             const disabledIndex = classList.indexOf('disabled')
             if (disabledIndex > -1) classList.splice(disabledIndex, 1)
             classList.push('in-date-range')
@@ -556,9 +642,8 @@ export default {
 
       const clickedTime = datetime.getTime()
       const clickedDateStr = this.displayDateText(datetime)
-      const isClickedDateDisabledByProp = this.formattedDisabledDates.includes(clickedDateStr)
+      const isClickedDateItselfDisabledByProp = this.formattedDisabledDates.includes(clickedDateStr)
 
-      // Check against min/max date overall
       if (
         (this.selectMinDate && clickedTime < this.selectMinDate.getTime()) ||
         (this.selectMaxDate && clickedTime > this.selectMaxDate.getTime())
@@ -569,17 +654,21 @@ export default {
       const currentStartDate = this.selectStartDate
       const currentEndDate = this.selectEndDate
 
-      if (!currentStartDate || (currentStartDate && currentEndDate)) { // Scenario 1: Start new selection or reset
-        if (isClickedDateDisabledByProp) return // Cannot start on a prop-disabled date
+      // Scenario 1: Start a new selection or reset current selection
+      if (!currentStartDate || (currentStartDate && currentEndDate)) {
+        if (isClickedDateItselfDisabledByProp) { // Cannot start selection with a date from disabledDates prop
+          return
+        }
         this.selectStartDate = datetime
         this.selectEndDate = null
-        this.$emit('update-selection', { start: this.selectStartDate, end: null })
+        this.$emit('update-selection', { start: new Date(this.selectStartDate.getTime()), end: null })
         return
       }
 
-      // Scenario 2: Start date exists, no end date (selecting second date)
+      // Scenario 2: A start date exists, but no end date (selecting the second date)
       if (currentStartDate && !currentEndDate) {
         const currentStartTime = currentStartDate.getTime()
+
         if (clickedTime === currentStartTime) return // Clicked start date again
 
         let potentialStartDate, potentialEndDate
@@ -594,22 +683,22 @@ export default {
         const potentialStartTime = potentialStartDate.getTime()
         const potentialEndTime = potentialEndDate.getTime()
         // const potentialStartDateStr = this.displayDateText(potentialStartDate)
-        // const potentialEndDateStr = this.displayDateText(potentialEndDate) // not used with current rules
 
-        // RULE 1: Potential start date cannot be prop-disabled.
-        // (If clickedTime < currentStartTime, potentialStartDate is the clicked date)
-        if (clickedTime < currentStartTime && isClickedDateDisabledByProp) return
+        // RULE 1: Potential start date cannot be one from disabledDates prop.
+        // If potentialStartDate is the newly clicked date (clickedTime < currentStartTime),
+        // then isClickedDateItselfDisabledByProp applies.
+        // If potentialStartDate is the existing currentStartDate, it was already validated.
+        if (potentialStartDate.getTime() === clickedTime && isClickedDateItselfDisabledByProp) {
+          return
+        }
 
-        // RULE 2: Check for intervening disabled dates.
-        // An end date can be a disabled date itself if it's selectable-disabled
-        const interveningDisabled = this.formattedDisabledDates.some(disabledStr => {
-          // If the potential end date is disabled by prop, don't count it as intervening IF it's the one being clicked
-          if (this.displayDateText(potentialEndDate) === disabledStr && potentialEndDate.getTime() === clickedTime) {
-            return false
-          }
-          const dTime = new Date(disabledStr).getTime()
-          return dTime > potentialStartTime && dTime < potentialEndTime
+        // RULE 2: Check for intervening disabled dates (using timestamps)
+        const interveningDisabled = this.disabledDateTimestamps.some(dTimestamp => {
+          // An end date can be a disabled date itself if it's 'selectable-disabled'.
+          // This check is for dates *strictly between* potentialStart and potentialEnd.
+          return dTimestamp > potentialStartTime && dTimestamp < potentialEndTime
         })
+
         if (interveningDisabled) {
           this.$emit('error', 'Range includes a disabled date.')
           return
@@ -628,7 +717,7 @@ export default {
 
         this.selectStartDate = potentialStartDate
         this.selectEndDate = potentialEndDate
-        this.$emit('update-selection', { start: this.selectStartDate, end: this.selectEndDate })
+        this.$emit('update-selection', { start: new Date(this.selectStartDate.getTime()), end: new Date(this.selectEndDate.getTime()) })
       }
     }
   }

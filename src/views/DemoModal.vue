@@ -42,6 +42,7 @@
         :disabledDates="disabledDatesForModal2"
         :minNight="2"
         :minDate="minDateForModal2"
+        :format="'DD.MM.YYYY'"
         message="Modal 2 starts empty. Select a range."
       />
       <p v-if="selection2.start">Selected for Modal 2: {{ selection2.startFormatted }} to {{ selection2.endFormatted }}</p>

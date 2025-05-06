@@ -7,6 +7,7 @@ As original, currently it supports only vue 2.
 List of improvements and customisations:
 
 - date selection reworked again (version 8) in relation with diagonal start end selector and selecting disabled end date
+  - for now disabledDates accept Date() formatted date eg. (2025-01-25 or 2025/25/25), not the format in `format`.
   - new property `useDiagonalStartEnd` true/false
 - date selection reworked (version 7) so it feels more *"naturally"* in edge cases:
   - changing already set selection sets new selection. it does not try to expand last selection or try to *"be smart"* about it

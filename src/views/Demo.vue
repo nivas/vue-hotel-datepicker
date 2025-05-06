@@ -55,7 +55,11 @@
           <span v-if="index !== disabledDates.length - 1">, </span>
         </span>
       </p>
-      <VueHotelDatepicker :disabledDates="disabledDates" :useDiagonalStartEnd="true"/>
+      <VueHotelDatepicker
+      :disabledDates="disabledDates"
+      :useDiagonalStartEnd="true"
+      format="'DD.MM.YYYY'"
+      />
     </div>
     <div class="demo-example">
       <p>11. Use datepicker in another language (ex: 繁體中文)</p>
@@ -95,18 +99,20 @@ export default {
     this.testMinDate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0)
     this.testMaxDate = new Date(now.getFullYear(), now.getMonth() + 1, 21, 0, 0, 0)
 
-    const disableDate1 = now.getTime() + (1000 * 60 * 60 * 24 * 7)
-    const disableDate2 = now.getTime() + (1000 * 60 * 60 * 24 * 8)
-    const disableDate3 = now.getTime() + (1000 * 60 * 60 * 24 * 13)
-    const disableDate4 = now.getTime() + (1000 * 60 * 60 * 24 * 16)
-    const disableDate5 = now.getTime() + (1000 * 60 * 60 * 24 * 21)
-    this.disabledDates = [
-      this.displayDateText(new Date(disableDate1)),
-      this.displayDateText(new Date(disableDate2)),
-      this.displayDateText(new Date(disableDate3)),
-      this.displayDateText(new Date(disableDate4)),
-      this.displayDateText(new Date(disableDate5))
-    ]
+    // const disableDate1 = now.getTime() + (1000 * 60 * 60 * 24 * 7)
+    // const disableDate2 = now.getTime() + (1000 * 60 * 60 * 24 * 8)
+    // const disableDate3 = now.getTime() + (1000 * 60 * 60 * 24 * 13)
+    // const disableDate4 = now.getTime() + (1000 * 60 * 60 * 24 * 16)
+    // const disableDate5 = now.getTime() + (1000 * 60 * 60 * 24 * 21)
+    // // this.disabledDates = [
+    // //   this.displayDateText(new Date(disableDate1)),
+    // //   this.displayDateText(new Date(disableDate2)),
+    // //   this.displayDateText(new Date(disableDate3)),
+    // //   this.displayDateText(new Date(disableDate4)),
+    // //   this.displayDateText(new Date(disableDate5))
+    // // ]
+
+    this.disabledDates = ['2025/05/07', '2025/05/08', '2025/05/10', '2025/05/11', '2025/05/14', '2025/05/15']
   },
   methods: {
     convertDateString (dateString) {

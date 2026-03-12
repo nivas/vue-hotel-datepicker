@@ -6,6 +6,7 @@ As original, currently it supports only vue 2.
 
 List of improvements and customisations:
 
+- in case of two calendars that share state, we watch now startDate/endDate params for changes and update selection accordingly so when other calendar changes, other follows
 - date selection reworked again (version 8) in relation with diagonal start end selector and selecting disabled end date
   - for now disabledDates accept Date() formatted date eg. (2025-01-25 or 2025/25/25), not the format in `format`.
   - new property `useDiagonalStartEnd` true/false

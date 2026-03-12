@@ -14,11 +14,13 @@
           <div class="calendar-container">
             <div class="vhd-calendar-left"> <!-- Renamed from .left for consistency with new logic if preferred -->
               <div class="calendar-month"> <!-- Was .calendar-month.start -->
-                <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-2" @click="updateCalendar(-2)">
+                <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-2"
+                  @click="updateCalendar(-2)">
                   <IconArrowBack class="arrow" />
                 </a>
-                <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-1" @click="updateCalendar(-1)">
-                  <IconArrowBack class="arrow"/>
+                <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-1"
+                  @click="updateCalendar(-1)">
+                  <IconArrowBack class="arrow" />
                 </a>
                 <div class="calendar-month-title"> <!-- Was .display-month -->
                   {{ monthList[startMonthDate.getMonth()] }} {{ startMonthDate.getFullYear() }}
@@ -34,11 +36,8 @@
               </div>
               <div class="calendar-date">
                 <div v-for="(week, wIndex) in startMonthAry" :key="wIndex" class="week">
-                  <div v-for="(startDay, dIndex) in week"
-                       :key="dIndex"
-                       :class="dayStatus(startDay)"
-                       class="day"
-                       @click="dayOnClick(startDay)">
+                  <div v-for="(startDay, dIndex) in week" :key="dIndex" :class="dayStatus(startDay)" class="day"
+                    @click="dayOnClick(startDay)">
                     <span v-if="startDay">
                       {{ startDay.getDate() }}
                     </span>
@@ -62,11 +61,8 @@
               </div>
               <div class="calendar-date">
                 <div v-for="(week, wIndex) in endMonthAry" :key="wIndex" class="week">
-                  <div v-for="(endDay, dIndex) in week"
-                       :key="dIndex"
-                       :class="dayStatus(endDay)"
-                       class="day"
-                       @click="dayOnClick(endDay)">
+                  <div v-for="(endDay, dIndex) in week" :key="dIndex" :class="dayStatus(endDay)" class="day"
+                    @click="dayOnClick(endDay)">
                     <span v-if="endDay">
                       {{ endDay.getDate() }}
                     </span>
@@ -75,14 +71,14 @@
               </div>
             </div>
             <div v-if="message" class="vhd-calendar-message">
-                {{message}}
+              {{ message }}
             </div>
             <div class="bottom"> <!-- Modal's footer area -->
               <div class="panel">
                 <div class="info">
                   <div v-if="selectStartDate" class="from">
                     <div class="text">{{ fromText }}</div>
-                    <div :class="{'selected': selectStartDate}" class="date">
+                    <div :class="{ 'selected': selectStartDate }" class="date">
                       {{ displayDateText(selectStartDate) }}
                     </div>
                   </div>
@@ -91,7 +87,7 @@
                   </div>
                   <div v-if="selectEndDate" class="to">
                     <div class="text">{{ toText }}</div>
-                    <div :class="{'selected': selectEndDate}" class="date">
+                    <div :class="{ 'selected': selectEndDate }" class="date">
                       {{ displayDateText(selectEndDate) }}
                     </div>
                   </div>
@@ -99,7 +95,8 @@
                 <div class="ctrl">
                   <a v-if="selectStartDate || selectEndDate" class="reset" @click="handleReset">{{ resetText }}</a>
                   <a class="cancel" @click="handleCancel">{{ cancelText }}</a>
-                  <a :class="{disabled: !(selectStartDate && selectEndDate)}" class="apply" @click="handleApply">{{ applyText }}</a>
+                  <a :class="{ disabled: !(selectStartDate && selectEndDate) }" class="apply" @click="handleApply">{{
+                    applyText }}</a>
                 </div>
               </div>
             </div>
@@ -212,7 +209,7 @@ export default {
       default: true
     }
   },
-  data () {
+  data() {
     return {
       startMonthDate: undefined,
       endMonthDate: undefined,
@@ -227,20 +224,52 @@ export default {
     }
   },
   watch: {
-    active (isActive) {
+    active(isActive) {
       if (isActive) {
         this.render() // Re-initialize and render when modal becomes active
       }
     },
     // Watchers for dynamic prop changes that should trigger a re-render if modal is active
-    start () { if (this.active) this.render() },
-    end () { if (this.active) this.render() },
-    minDate () { if (this.active) this.render() },
-    maxDate () { if (this.active) this.render() },
+    start() { if (this.active) this.render() },
+    end() { if (this.active) this.render() },
+    minDate() { if (this.active) this.render() },
+    maxDate() { if (this.active) this.render() },
+    // in case of two calendars that share state, this will update their start/end dates when one change
+    startDate (newVal) {
+      if (!newVal) {
+        this.selectStartDate = undefined;
+      } else {
+        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
+        const newDate = new Date(val);
+        newDate.setHours(0, 0, 0, 0);
+
+        // Only update if actually different to avoid loops
+        if (!this.selectStartDate || this.selectStartDate.getTime() !== newDate.getTime()) {
+          this.selectStartDate = newDate;
+          this.updateValue();
+          this.updateCalendar();
+        }
+      }
+    },
+    endDate (newVal) {
+      if (!newVal) {
+        this.selectEndDate = undefined;
+      } else {
+        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
+        const newDate = new Date(val);
+        newDate.setHours(0, 0, 0, 0);
+
+        if (!this.selectEndDate || this.selectEndDate.getTime() !== newDate.getTime()) {
+          this.selectEndDate = newDate;
+          this.updateValue();
+          this.updateCalendar();
+        }
+      }
+    },
 
     disabledDates: {
       immediate: true,
-      handler (newVal) {
+      handler(newVal) {
         const rawDates = newVal || []
 
         // 1. Update internal representations of disabled dates
@@ -313,19 +342,19 @@ export default {
       }
     }
   },
-  created () {
+  created() {
     if (this.active) {
       this.render()
     }
     // If not active, disabledDates watcher (immediate:true) will still process initial disabledDates
   },
   methods: {
-    handleOverlayClick () {
+    handleOverlayClick() {
       if (this.closeOnOverlayClick) {
         this.handleCancel()
       }
     },
-    render () {
+    render() {
       // Min/Max Date Initialization from props
       if (this.minDate) {
         const minDateValue = typeof (this.minDate) === 'string' ? this.minDate : new Date(this.minDate).getTime()
@@ -378,8 +407,8 @@ export default {
         })
 
         const validAgainstMinMax =
-            !(this.selectMinDate && startTs < this.selectMinDate.getTime()) &&
-            !(this.selectMaxDate && endTs > this.selectMaxDate.getTime())
+          !(this.selectMinDate && startTs < this.selectMinDate.getTime()) &&
+          !(this.selectMaxDate && endTs > this.selectMaxDate.getTime())
 
         if (validAgainstMinMax && !startIsDisabledByProp && !interveningDisabled) {
           this.selectStartDate = initialStartDate
@@ -390,8 +419,8 @@ export default {
       } else if (initialStartDate) {
         const startStr = this.displayDateText(initialStartDate)
         const validAgainstMinMax =
-            !(this.selectMinDate && initialStartDate.getTime() < this.selectMinDate.getTime()) &&
-            !(this.selectMaxDate && initialStartDate.getTime() > this.selectMaxDate.getTime())
+          !(this.selectMinDate && initialStartDate.getTime() < this.selectMinDate.getTime()) &&
+          !(this.selectMaxDate && initialStartDate.getTime() > this.selectMaxDate.getTime())
 
         if (validAgainstMinMax && !this.formattedDisabledDates.includes(startStr)) {
           this.selectStartDate = initialStartDate
@@ -402,7 +431,7 @@ export default {
       this.updateCalendar() // Always update calendar view after processing initial dates
     },
 
-    handleApply () {
+    handleApply() {
       if (this.selectStartDate && this.selectEndDate) {
         const dateResult = {
           start: new Date(this.selectStartDate.getTime()), // Emit fresh Date objects
@@ -415,17 +444,17 @@ export default {
         this.$emit('error', 'Please select a valid start and end date.')
       }
     },
-    handleCancel () {
+    handleCancel() {
       this.$emit('cancel')
     },
-    handleReset () {
+    handleReset() {
       this.selectStartDate = undefined
       this.selectEndDate = undefined
       this.$emit('reset-selection') // Specific event for selection reset
       this.updateCalendar()
     },
 
-    displayDateText (datetime) {
+    displayDateText(datetime) {
       if (!datetime) return undefined
       const d = datetime instanceof Date ? new Date(datetime.getTime()) : new Date(datetime)
       if (isNaN(d.getTime())) {
@@ -438,7 +467,7 @@ export default {
       return (this.format || 'YYYY/MM/DD').replace('YYYY', yyyy).replace('MM', mm).replace('DD', dd)
     },
 
-    generateCalendar (calculateYear = new Date().getFullYear(), calculateMonth = new Date().getMonth(), config = {}) {
+    generateCalendar(calculateYear = new Date().getFullYear(), calculateMonth = new Date().getMonth(), config = {}) {
       const showPreviousMonthDate = config.showPreviousMonthDate || false
       const showNextMonthDate = config.showNextMonthDate || false
       const baseDateTime = new Date(calculateYear, calculateMonth, 1, 0, 0, 0)
@@ -508,7 +537,7 @@ export default {
       return tempMonthAry
     },
 
-    updateCalendar (offset = 0) {
+    updateCalendar(offset = 0) {
       if (!this.startMonthDate) {
         this.startMonthDate = this.selectStartDate
           ? new Date(this.selectStartDate.getFullYear(), this.selectStartDate.getMonth())
@@ -536,7 +565,7 @@ export default {
       this.endMonthAry = this.generateCalendar(this.endMonthDate.getFullYear(), this.endMonthDate.getMonth())
     },
 
-    disabledPreviousArrow (monthDatetime) {
+    disabledPreviousArrow(monthDatetime) {
       if (monthDatetime && this.selectForward) {
         const currentDisplayMonth = new Date(monthDatetime.getFullYear(), monthDatetime.getMonth(), 1)
         let referenceMonth
@@ -552,7 +581,7 @@ export default {
       return false
     },
 
-    dayStatus (datetime) {
+    dayStatus(datetime) {
       let selectableDisabledClassName = this.useDiagonalStartEnd ? 'selectable-disabled-diagonal' : 'selectable-disabled'
       const classList = []
       if (datetime) {
@@ -561,8 +590,8 @@ export default {
         const display = this.displayDateText(datetime)
 
         const isBaseDisabled =
-            (this.selectMinDate && time < this.selectMinDate.getTime()) ||
-            (this.selectMaxDate && time > this.selectMaxDate.getTime())
+          (this.selectMinDate && time < this.selectMinDate.getTime()) ||
+          (this.selectMaxDate && time > this.selectMaxDate.getTime())
         const isDisabledByProp = this.formattedDisabledDates.includes(display)
         let isGenerallyDisabled = isBaseDisabled
 
@@ -637,7 +666,7 @@ export default {
       return [...new Set(classList)]
     },
 
-    dayOnClick (datetime) {
+    dayOnClick(datetime) {
       if (!datetime) return
 
       const clickedTime = datetime.getTime()
@@ -727,10 +756,18 @@ export default {
 <style lang="scss" scoped>
 // Keep existing modal styles
 @keyframes fade-modal {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
-* { box-sizing: border-box; }
+
+* {
+  box-sizing: border-box;
+}
 
 .date-range-picker-modal {
   animation: fade-modal 0.2s 0s 1 ease-in;
@@ -742,11 +779,13 @@ export default {
   height: 100%;
   background-color: rgba(255, 255, 255, .85);
   display: table;
+
   &-wrapper {
     z-index: 1;
     display: table-cell;
     vertical-align: middle;
   }
+
   &-container {
     width: 648px; // Default desktop width
     max-height: 90%;
@@ -756,6 +795,7 @@ export default {
     box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);
     overflow-y: auto; // For very tall content on small screens
   }
+
   &-header {
     height: 48px;
     width: 100%;
@@ -766,25 +806,33 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-end; // Puts close button to the right
+
     .close {
       font-size: 24px;
       color: #9b9b9b;
       cursor: pointer;
       line-height: 1; // Prevents extra space
       padding: 5px; // Easier to click
-      svg { fill: #9b9b9b; }
-      &:hover svg { fill: darken(#9b9b9b, 20%); }
+
+      svg {
+        fill: #9b9b9b;
+      }
+
+      &:hover svg {
+        fill: darken(#9b9b9b, 20%);
+      }
     }
   }
 }
 
-.date-range-picker { // Main content area within modal container
+.date-range-picker {
+  // Main content area within modal container
   padding: 0px 24px 24px 24px; // Padding for the calendar content
 }
 
 // Calendar structure styles (can be vhd- specific or current modal's)
 // Using current modal structure, adapting new styles to it
-.calendar-container{
+.calendar-container {
   position: relative;
   width: 100%; // Takes width from parent
   text-align: left;
@@ -799,9 +847,11 @@ export default {
   vertical-align: top;
   width: 280px; // From non-modal
 }
+
 .vhd-calendar-left {
   margin-right: 40px; // From non-modal
 }
+
 .vhd-calendar-right {
   // styles if any specific to right
 }
@@ -810,6 +860,7 @@ export default {
   position: relative;
   height: 32px;
   margin-bottom: 16px; // Modal's original
+
   .next-arrow,
   .previous-arrow {
     position: absolute; // Added for explicit positioning
@@ -821,21 +872,40 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    svg { width: 20px; height: 20px; fill: #7d7d7d; }
-    &:hover svg { fill: darken(#7d7d7d, 20%); }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: #7d7d7d;
+    }
+
+    &:hover svg {
+      fill: darken(#7d7d7d, 20%);
+    }
+
     &.disabled {
       // display: none !important; // From non-modal, or use opacity
       opacity: 0.3;
       pointer-events: none;
     }
   }
-  .previous-arrow { left: 0; }
-  .next-arrow { right: 0; }
+
+  .previous-arrow {
+    left: 0;
+  }
+
+  .next-arrow {
+    right: 0;
+  }
 
   // Specific offsets for mobile/single calendar view if needed
-  .previous-arrow.offset-1, .next-arrow.offset-1 { /* display: none; by default */ }
+  .previous-arrow.offset-1,
+  .next-arrow.offset-1 {
+    /* display: none; by default */
+  }
 
-  .calendar-month-title { // Was .display-month
+  .calendar-month-title {
+    // Was .display-month
     margin: 0; // Reset margin if any
     padding: 0 30px; // Space for arrows
     font-size: 20px;
@@ -845,11 +915,14 @@ export default {
     color: #505050;
   }
 }
+
 .calendar-week {
   width: 100%;
   height: 32px;
   display: flex; // Use flex for easy distribution
-  .calendar-week-item { // Was .week-date
+
+  .calendar-week-item {
+    // Was .week-date
     flex: 1; // Distribute space equally
     font-size: 12px;
     font-weight: 500;
@@ -858,12 +931,15 @@ export default {
     line-height: 32px; // Vertically center
   }
 }
+
 .calendar-date {
   min-height: 240px; // 6 rows * 40px
+
   .week {
     display: flex; // Use flex for day distribution
     width: 100%;
     height: 40px;
+
     .day {
       flex: 1; // Distribute space equally, ensures 7 days fit
       min-width: 40px; // Maintain minimum size
@@ -882,7 +958,8 @@ export default {
       outline: none; // remove focus outline if any
 
       // Base ::before and ::after from non-modal for start/end date indicators
-      &::before, &::after {
+      &::before,
+      &::after {
         content: '';
         position: absolute;
         width: 0px;
@@ -891,17 +968,27 @@ export default {
         background-color: transparent;
         opacity: 0;
         transition: opacity .4s cubic-bezier(0.165, 0.84, 0.44, 1),
-                    background-color .4s cubic-bezier(0.165, 0.84, 0.44, 1),
-                    width .4s cubic-bezier(0.165, 0.84, 0.44, 1);
+          background-color .4s cubic-bezier(0.165, 0.84, 0.44, 1),
+          width .4s cubic-bezier(0.165, 0.84, 0.44, 1);
       }
-      &::before { left: 0; }
-      &::after { left: auto; right: 0; }
+
+      &::before {
+        left: 0;
+      }
+
+      &::after {
+        left: auto;
+        right: 0;
+      }
 
       // Empty day cells (e.g. from previous/next month if not shown)
       &.empty {
         pointer-events: none;
         background-color: transparent !important; // Ensure no hover effects
-        span { display: none; }
+
+        span {
+          display: none;
+        }
       }
 
       // Disabled state
@@ -909,12 +996,16 @@ export default {
         color: #ececec !important; // Higher specificity
         pointer-events: none !important;
         background-color: transparent !important;
-        &.forbidden { // If it's disabled AND forbidden
-            color: #fed9d8 !important; // Specific color for forbidden-disabled
+
+        &.forbidden {
+          // If it's disabled AND forbidden
+          color: #fed9d8 !important; // Specific color for forbidden-disabled
         }
       }
+
       // Forbidden by prop (but not otherwise disabled by min/max/nights)
-      &.forbidden:not(.disabled) { // Only if not already .disabled
+      &.forbidden:not(.disabled) {
+        // Only if not already .disabled
         color: #fed9d8; // Light red text
         // background-color: #fff0f0; // Very light pink background
         cursor: not-allowed;
@@ -928,18 +1019,44 @@ export default {
         background-color: #ffe7e7; // Light pink background
         cursor: pointer; // Still clickable
       }
+
       &.selectable-disabled-diagonal {
         position: relative;
         overflow: hidden;
         border: 1px dashed #e57373;
         cursor: pointer;
-        &::before, &::after { // Re-purpose for diagonal background
-          content: ''; position: absolute; width: 100%; height: 100%;
-          top: 0; left: 0; opacity: 1; z-index: 0; transition: none;
+
+        &::before,
+        &::after {
+          // Re-purpose for diagonal background
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          opacity: 1;
+          z-index: 0;
+          transition: none;
         }
-        &::before { background-color: #ffe7e7; clip-path: polygon(100% 0, 100% 100%, 0 0); } // Top-right half pink
-        &::after { background-color: #ffffff; clip-path: polygon(0 100%, 0 0, 100% 100%); } // Bottom-left half white
-        span { position: relative; z-index: 1; color: #a94442; }
+
+        &::before {
+          background-color: #ffe7e7;
+          clip-path: polygon(100% 0, 100% 100%, 0 0);
+        }
+
+        // Top-right half pink
+        &::after {
+          background-color: #ffffff;
+          clip-path: polygon(0 100%, 0 0, 100% 100%);
+        }
+
+        // Bottom-left half white
+        span {
+          position: relative;
+          z-index: 1;
+          color: #a94442;
+        }
       }
 
       // Today state
@@ -961,21 +1078,55 @@ export default {
         background-color: #0088FF; // Primary blue
         color: #ffffff;
         border-radius: 4px 0 0 4px; // Rounded left corners
-        &::before { // Vertical bar indicator from non-modal
-          width: 4px; background-color: darken(#0088FF, 10%); opacity: 1;
+
+        &::before {
+          // Vertical bar indicator from non-modal
+          width: 4px;
+          background-color: darken(#0088FF, 10%);
+          opacity: 1;
         }
       }
+
       &.start-date-diagonal {
-        position: relative; overflow: hidden; color: #505050; // Default text color
-        &::before, &::after {
-          content: ''; position: absolute; width: 100%; height: 100%;
-          top: 0; left: 0; opacity: 1; z-index: 0; transition: none;
+        position: relative;
+        overflow: hidden;
+        color: #505050; // Default text color
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          opacity: 1;
+          z-index: 0;
+          transition: none;
         }
-        &::before { background-color: #ffffff; clip-path: polygon(0 0, 100% 0, 0 100%); } // Top-left white
-        &::after { background-color: #B2D7FF; clip-path: polygon(100% 100%, 0 100%, 100% 0); } // Bottom-right light blue
-        span { position: relative; z-index: 1; }
-         // If start-date-diagonal is also today
-        &.today { border-color: transparent; /* Hide border if diagonal bg is used */ }
+
+        &::before {
+          background-color: #ffffff;
+          clip-path: polygon(0 0, 100% 0, 0 100%);
+        }
+
+        // Top-left white
+        &::after {
+          background-color: #B2D7FF;
+          clip-path: polygon(100% 100%, 0 100%, 100% 0);
+        }
+
+        // Bottom-right light blue
+        span {
+          position: relative;
+          z-index: 1;
+        }
+
+        // If start-date-diagonal is also today
+        &.today {
+          border-color: transparent;
+          /* Hide border if diagonal bg is used */
+        }
 
       }
 
@@ -984,20 +1135,53 @@ export default {
         background-color: #0088FF; // Primary blue
         color: #ffffff;
         border-radius: 0 4px 4px 0; // Rounded right corners
-        &::after { // Vertical bar indicator
-          width: 4px; background-color: darken(#0088FF, 10%); opacity: 1;
+
+        &::after {
+          // Vertical bar indicator
+          width: 4px;
+          background-color: darken(#0088FF, 10%);
+          opacity: 1;
         }
       }
+
       &.end-date-diagonal {
-        position: relative; overflow: hidden; color: #505050;
-        &::before, &::after {
-          content: ''; position: absolute; width: 100%; height: 100%;
-          top: 0; left: 0; opacity: 1; z-index: 0; transition: none;
+        position: relative;
+        overflow: hidden;
+        color: #505050;
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          opacity: 1;
+          z-index: 0;
+          transition: none;
         }
-        &::before { background-color: #ffffff; clip-path: polygon(100% 0, 100% 100%, 0 0); } // Top-right white
-        &::after { background-color: #B2D7FF; clip-path: polygon(0 100%, 0 0, 100% 100%); } // Bottom-left light blue
-        span { position: relative; z-index: 1; }
-        &.today { border-color: transparent; }
+
+        &::before {
+          background-color: #ffffff;
+          clip-path: polygon(100% 0, 100% 100%, 0 0);
+        }
+
+        // Top-right white
+        &::after {
+          background-color: #B2D7FF;
+          clip-path: polygon(0 100%, 0 0, 100% 100%);
+        }
+
+        // Bottom-left light blue
+        span {
+          position: relative;
+          z-index: 1;
+        }
+
+        &.today {
+          border-color: transparent;
+        }
       }
 
       // When start and end date are the same day (single day selection)
@@ -1024,23 +1208,28 @@ export default {
   margin-top: 16px; // Space above footer
 }
 
-.bottom { // Modal's footer area
+.bottom {
+  // Modal's footer area
   display: block;
   width: 100%;
   min-height: 48px;
   padding-top: 16px; // Space from calendar
   border-top: 1px solid #eee;
   margin-top: 16px;
+
   .panel {
     position: relative;
     min-height: 48px;
     display: flex; // Use flex for layout
     justify-content: space-between; // Pushes info left, ctrl right
     align-items: center; // Vertically align items
+
     .info {
       display: flex; // Arrange from/to horizontally
       align-items: center;
-      .from, .to {
+
+      .from,
+      .to {
         .text {
           margin-bottom: 4px; // Smaller gap
           font-size: 10px; // Smaller text
@@ -1049,14 +1238,19 @@ export default {
           color: #7d7d7d;
           text-transform: uppercase;
         }
+
         .date {
           line-height: 1;
           font-size: 14px; // Slightly smaller date
           font-weight: 700;
           color: #9b9b9b;
-          &.selected { color: #505050; }
+
+          &.selected {
+            color: #505050;
+          }
         }
       }
+
       .from-to-arrow {
         margin: 0 12px; // Space around separator
         padding-top: 10px; // Align with date text
@@ -1064,10 +1258,12 @@ export default {
         font-size: 14px;
       }
     }
+
     .ctrl {
       display: flex; // Arrange buttons horizontally
       align-items: center;
-      > a {
+
+      >a {
         font-size: 14px; // Slightly smaller buttons
         font-weight: 700;
         line-height: 1.63;
@@ -1080,16 +1276,28 @@ export default {
 
         &.reset {
           color: #7d7d7d;
-          &:hover { background-color: #f0f0f0; }
+
+          &:hover {
+            background-color: #f0f0f0;
+          }
         }
+
         &.cancel {
           color: #9b9b9b;
-          &:hover { background-color: #f0f0f0; }
+
+          &:hover {
+            background-color: #f0f0f0;
+          }
         }
+
         &.apply {
           color: #ffffff;
           background-color: #0088FF;
-          &:hover { background-color: darken(#0088FF, 10%); }
+
+          &:hover {
+            background-color: darken(#0088FF, 10%);
+          }
+
           &.disabled {
             background-color: #cccccc;
             color: #666666;
@@ -1112,33 +1320,48 @@ export default {
       border-radius: 0;
       box-shadow: none;
     }
+
     &-header {
       // display: block; // Already visible
     }
   }
 
   .date-range-picker {
-     padding: 0px 16px 16px 16px; // Reduce padding on mobile
+    padding: 0px 16px 16px 16px; // Reduce padding on mobile
   }
 
   .vhd-calendar-left {
     width: 100%;
     margin-right: 0;
   }
+
   .vhd-calendar-right {
     display: none; // Hide right calendar on mobile
   }
 
   .calendar-month {
-    .previous-arrow.offset-2, .next-arrow.offset-2 /* if exists */ { display: none; }
-    .previous-arrow.offset-1, .next-arrow.offset-1 { display: flex; /* Make sure they are visible */ }
+    .previous-arrow.offset-2,
+    .next-arrow.offset-2
+
+    /* if exists */
+      {
+      display: none;
+    }
+
+    .previous-arrow.offset-1,
+    .next-arrow.offset-1 {
+      display: flex;
+      /* Make sure they are visible */
+    }
   }
 
   .calendar-date .week .day {
     // width: calc(100% / 7); // Already handled by flex:1
     font-size: 14px; // Slightly smaller day numbers on mobile
+
     // Mobile specific start/end date styles if different from desktop
-    &.start-date, &.end-date {
+    &.start-date,
+    &.end-date {
       // Non-modal had specific border/color changes for mobile, here we rely on desktop's radius
       // color: #ffffff;
       // background-color: #0088FF; // Already set
@@ -1147,18 +1370,37 @@ export default {
 
   .bottom .panel {
     flex-direction: column; // Stack info and ctrl vertically
+
     .info {
       margin-bottom: 16px; // Space between info and controls
       justify-content: center; // Center the date info
       width: 100%;
     }
+
     .ctrl {
       width: 100%;
       justify-content: flex-end; // Align buttons to the right
-      > a { margin-left: 8px; &:first-child {margin-left: 0;} }
-      .reset { order: 1; } // Optional: reorder buttons on mobile
-      .cancel { order: 2; }
-      .apply { order: 3; }
+
+      >a {
+        margin-left: 8px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+
+      .reset {
+        order: 1;
+      }
+
+      // Optional: reorder buttons on mobile
+      .cancel {
+        order: 2;
+      }
+
+      .apply {
+        order: 3;
+      }
     }
   }
 }

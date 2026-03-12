@@ -1,10 +1,7 @@
 <template>
   <div :class="mobile.toLowerCase()" class="vhd-container">
-    <input v-model="value"
-           :placeholder="placeholder"
-           type="text" class="vhd-input" aria-label="vue-hotel-datepicker-input"
-           @mousedown.prevent="toggle"
-           @focus.prevent="toggle">
+    <input v-model="value" :placeholder="placeholder" type="text" class="vhd-input"
+      aria-label="vue-hotel-datepicker-input" @mousedown.prevent="toggle" @focus.prevent="toggle">
     <div v-if="active" class="vhd-picker">
       <div class="vhd-calendar">
         <div class="vhd-calendar-header">
@@ -20,11 +17,13 @@
         </div>
         <div class="vhd-calendar-left">
           <div class="calendar-month">
-            <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-2" @click="updateCalendar(-2)">
+            <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-2"
+              @click="updateCalendar(-2)">
               <IconArrowBack class="arrow" />
             </a>
-            <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-1" @click="updateCalendar(-1)">
-              <IconArrowBack class="arrow"/>
+            <a :class="disabledPreviousArrow(startMonthDate)" class="previous-arrow offset-1"
+              @click="updateCalendar(-1)">
+              <IconArrowBack class="arrow" />
             </a>
             <div class="calendar-month-title">
               {{ monthList[startMonthDate.getMonth()] }} {{ startMonthDate.getFullYear() }}
@@ -40,11 +39,8 @@
           </div>
           <div class="calendar-date">
             <div v-for="(week, wIndex) in startMonthAry" :key="wIndex" class="week">
-              <div v-for="(startDay, dIndex) in week"
-                   :key="dIndex"
-                   :class="dayStatus(startDay)"
-                   class="day"
-                   @click="dayOnClick(startDay)">
+              <div v-for="(startDay, dIndex) in week" :key="dIndex" :class="dayStatus(startDay)" class="day"
+                @click="dayOnClick(startDay)">
                 <span v-if="startDay">
                   {{ startDay.getDate() }}
                 </span>
@@ -68,7 +64,8 @@
           </div>
           <div class="calendar-date">
             <div v-for="(week, wIndex) in endMonthAry" :key="wIndex" class="week">
-              <div v-for="(endDay, dIndex) in week" :key="dIndex" :class="dayStatus(endDay)" class="day" @click="dayOnClick(endDay)">
+              <div v-for="(endDay, dIndex) in week" :key="dIndex" :class="dayStatus(endDay)" class="day"
+                @click="dayOnClick(endDay)">
                 <span v-if="endDay">
                   {{ endDay.getDate() }}
                 </span>
@@ -77,7 +74,7 @@
           </div>
         </div>
         <div v-if="message" class="vhd-calendar-message">
-            {{message}}
+          {{ message }}
         </div>
         <div class="vhd-calendar-footer">
           <div v-if="selectStartDate || selectEndDate" class="reset" @click="reset">{{ resetText }}</div>
@@ -182,7 +179,7 @@ export default {
       default: false
     }
   },
-  data () {
+  data() {
     return {
       value: '',
       active: false,
@@ -200,9 +197,41 @@ export default {
   },
   computed: {},
   watch: {
+    // in case of two calendars that share state, this will update their start/end dates when one change
+    startDate (newVal) {
+      if (!newVal) {
+        this.selectStartDate = undefined;
+      } else {
+        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
+        const newDate = new Date(val);
+        newDate.setHours(0, 0, 0, 0);
+
+        // Only update if actually different to avoid loops
+        if (!this.selectStartDate || this.selectStartDate.getTime() !== newDate.getTime()) {
+          this.selectStartDate = newDate;
+          this.updateValue();
+          this.updateCalendar();
+        }
+      }
+    },
+    endDate (newVal) {
+      if (!newVal) {
+        this.selectEndDate = undefined;
+      } else {
+        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
+        const newDate = new Date(val);
+        newDate.setHours(0, 0, 0, 0);
+
+        if (!this.selectEndDate || this.selectEndDate.getTime() !== newDate.getTime()) {
+          this.selectEndDate = newDate;
+          this.updateValue();
+          this.updateCalendar();
+        }
+      }
+    },
     disabledDates: {
       immediate: true,
-      handler (newVal, oldVal) { // oldVal is available if needed for comparison
+      handler(newVal, oldVal) { // oldVal is available if needed for comparison
         const rawDates = newVal || []
 
         // 1. Update internal representations of disabled dates
@@ -280,12 +309,12 @@ export default {
       }
     }
   },
-  created () {
+  created() {
     this.render()
   },
-  mounted () {},
+  mounted() { },
   methods: {
-    render () {
+    render() {
       // Min/Max Date Initialization
       if (this.minDate) {
         const minDateValue = typeof (this.minDate) === 'string' ? this.minDate : this.minDate.getTime()
@@ -357,7 +386,7 @@ export default {
       this.updateCalendar()
     },
 
-    toggle (e) {
+    toggle(e) {
       if (e.type === 'focus') {
         this.$emit('beforeopen')
         this.active = true
@@ -367,22 +396,22 @@ export default {
       this.active = !this.active
       this.$emit(this.active ? 'open' : 'close')
     },
-    close () {
+    close() {
       this.active = false
       this.$emit('close')
     },
-    open () {
+    open() {
       this.active = true
       this.$emit('open')
     },
-    reset () {
+    reset() {
       this.selectStartDate = undefined
       this.selectEndDate = undefined
       this.value = ''
       this.$emit('reset')
       this.updateCalendar()
     },
-    confirm () {
+    confirm() {
       if (this.selectStartDate && this.selectEndDate) {
         const dateResult = {
           start: this.displayDateText(this.selectStartDate),
@@ -395,7 +424,7 @@ export default {
       }
     },
 
-    displayDateText (datetime) {
+    displayDateText(datetime) {
       if (!datetime) return undefined
       // Ensure datetime is a Date object instance, clone if it is
       const dateObj = datetime instanceof Date ? new Date(datetime.getTime()) : new Date(datetime)
@@ -412,7 +441,7 @@ export default {
       return displayStr
     },
 
-    generateCalendar (calculateYear = new Date().getFullYear(), calculateMonth = new Date().getMonth(), config = {}) {
+    generateCalendar(calculateYear = new Date().getFullYear(), calculateMonth = new Date().getMonth(), config = {}) {
       const showPreviousMonthDate = config.showPreviousMonthDate || false
       const showNextMonthDate = config.showNextMonthDate || false
       const baseDateTime = new Date(calculateYear, calculateMonth, 1, 0, 0, 0)
@@ -450,7 +479,7 @@ export default {
           }
         }
         if ((countTime.getTime() === baseDateTime.getTime() && tempWeekAry.length === 7) ||
-                (countTime.getTime() > baseDateTime && day === 6)) {
+          (countTime.getTime() > baseDateTime && day === 6)) {
           tempMonthAry.push(tempWeekAry)
           tempWeekAry = []
         }
@@ -459,7 +488,7 @@ export default {
       return tempMonthAry
     },
 
-    updateCalendar (offset = 0) {
+    updateCalendar(offset = 0) {
       if (!this.startMonthDate) {
         this.startMonthDate = this.selectStartDate
           ? new Date(this.selectStartDate.getFullYear(), this.selectStartDate.getMonth())
@@ -481,7 +510,7 @@ export default {
       this.endMonthAry = this.generateCalendar(this.endMonthDate.getFullYear(), this.endMonthDate.getMonth())
     },
 
-    updateValue () {
+    updateValue() {
       if (this.selectStartDate && this.selectEndDate) {
         this.value = `${this.displayDateText(this.selectStartDate)} ${this.separator} ${this.displayDateText(this.selectEndDate)}`
       } else if (this.selectStartDate) {
@@ -491,7 +520,7 @@ export default {
       }
     },
 
-    disabledPreviousArrow (monthDatetime) {
+    disabledPreviousArrow(monthDatetime) {
       const now = new Date()
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
       if (monthDatetime && this.selectForward) {
@@ -500,7 +529,7 @@ export default {
             return 'disabled'
           }
           if (monthDatetime.getFullYear() === this.selectMinDate.getFullYear() &&
-                    monthDatetime.getMonth() <= this.selectMinDate.getMonth()) {
+            monthDatetime.getMonth() <= this.selectMinDate.getMonth()) {
             return 'disabled'
           }
         } else {
@@ -513,7 +542,7 @@ export default {
       return false
     },
 
-    dayStatus (datetime) {
+    dayStatus(datetime) {
       let selectableDisabledClassName = 'selectable-disabled'
       if (this.useDiagonalStartEnd) {
         selectableDisabledClassName = 'selectable-disabled-diagonal'
@@ -526,8 +555,8 @@ export default {
         const display = this.displayDateText(datetime) // Formatted string of the current day cell
 
         const isBaseDisabled =
-            (this.selectMinDate && time < this.selectMinDate.getTime()) ||
-            (this.selectMaxDate && time > this.selectMaxDate.getTime())
+          (this.selectMinDate && time < this.selectMinDate.getTime()) ||
+          (this.selectMaxDate && time > this.selectMaxDate.getTime())
 
         // Check if this date is in the disabledDates prop (uses formatted string)
         const isDisabledByProp = this.formattedDisabledDates.includes(display)
@@ -618,7 +647,7 @@ export default {
       return [...new Set(classList)]
     },
 
-    dayOnClick (datetime) {
+    dayOnClick(datetime) {
       if (!datetime) return
 
       const clickedTime = datetime.getTime()
@@ -724,40 +753,50 @@ export default {
       width: 300px;
       padding: 8px;
     }
+
     &-calendar {
       &-header {
         height: 60px;
-        > .info {
+
+        >.info {
           display: block;
           width: 100%;
           height: 60px;
           padding-top: 36px;
         }
       }
+
       &-left {
         width: 100%;
         margin-right: 0;
       }
+
       &-right {
         display: none;
       }
+
       .calendar {
         &-month {
           .previous-arrow.offset-2 {
             display: none;
           }
+
           .previous-arrow.offset-1 {
             display: inline-block;
           }
+
           .next-arrow.offset-1 {
             display: inline-block;
           }
         }
+
         &-week {}
+
         &-date {
           .week {
             .day {
               width: calc(100% / 7);
+
               &.start-date {
                 color: #ffffff;
                 border-left: none;
@@ -765,6 +804,7 @@ export default {
                 background-color: #0088FF;
                 transition: all .2s ease;
               }
+
               &.end-date {
                 color: #ffffff;
                 border-right: none;
@@ -779,26 +819,32 @@ export default {
     }
   }
 }
+
 * {
   box-sizing: border-box;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
 }
+
 svg {
   fill: #7d7d7d;
+
   @media (hover: hover) {
     &:hover {
       fill: darken(#7d7d7d, 20%)
     }
   }
 }
+
 .vhd {
   &-container.mobile {
     @include mobile-vhd();
   }
+
   &-container {
     display: inline-block;
     position: relative;
   }
+
   &-input {
     min-width: 300px;
     padding: 8px;
@@ -807,10 +853,12 @@ svg {
     font-size: 16px;
     line-height: 32px;
     outline: none;
+
     &::placeholder {
       color: #cccccc;
     }
   }
+
   &-picker {
     z-index: 100;
     position: absolute;
@@ -824,30 +872,36 @@ svg {
     box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);
     overflow: hidden;
   }
+
   &-calendar {
     &-header {
       position: relative;
       width: 100%;
       height: 36px;
-      > .info {
+
+      >.info {
         display: inline-block;
         width: calc(100% - 24px);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
         .from-text {
           //
         }
+
         .from-date,
         .to-date {
           margin: 0 8px;
           font-weight: 700;
         }
+
         .to-text {
           //
         }
       }
-      > a.close {
+
+      >a.close {
         position: absolute;
         right: 0;
         width: 24px;
@@ -855,11 +909,14 @@ svg {
         cursor: pointer;
       }
     }
+
     &-footer {
       position: relative;
       width: 100%;
       height: 36px;
-      .reset, .confirm {
+
+      .reset,
+      .confirm {
         position: absolute;
         bottom: 0;
         margin: 8px 0;
@@ -867,18 +924,22 @@ svg {
         font-weight: 500;
         cursor: pointer;
       }
+
       .reset {
         left: 0;
         color: #7d7d7d;
+
         @media (hover: hover) {
           &:hover {
             color: darken(#7d7d7d, 20%)
           }
         }
       }
+
       .confirm {
         right: 0;
         color: #0088ff;
+
         @media (hover: hover) {
           &:hover {
             color: darken(#0088ff, 20%)
@@ -886,20 +947,24 @@ svg {
         }
       }
     }
+
     &-left,
     &-right {
       display: inline-block;
       vertical-align: top;
       width: 280px;
     }
+
     &-left {
       margin-right: 40px;
     }
+
     .calendar {
       &-month {
         position: relative;
         height: 32px;
         margin-bottom: 8px;
+
         .next-arrow,
         .previous-arrow {
           position: absolute;
@@ -907,23 +972,29 @@ svg {
           padding-top: 4px;
           // border: solid 1px #0088FF;
           cursor: pointer;
+
           &.disabled {
             // cursor: not-allowed;
-            display: none!important;
+            display: none !important;
           }
         }
+
         .previous-arrow {
           left: 0;
         }
+
         .next-arrow {
           right: 0;
         }
+
         .previous-arrow.offset-1 {
           display: none;
         }
+
         .next-arrow.offset-1 {
           display: none;
         }
+
         &-title {
           margin: 8px 0;
           font-size: 20px;
@@ -933,9 +1004,11 @@ svg {
           color: #505050;
         }
       }
+
       &-week {
         width: 100%;
         height: 32px;
+
         &-item {
           float: left;
           display: inline-block;
@@ -948,11 +1021,13 @@ svg {
           line-height: 20px;
         }
       }
+
       &-date {
         .week {
           display: block;
           width: 100%;
           height: 40px;
+
           .day {
             float: left;
             position: relative;
@@ -968,8 +1043,9 @@ svg {
             text-align: center;
             cursor: pointer;
             transition: background-color .4s cubic-bezier(0.165, 0.84, 0.44, 1);
+
             &::before,
-            &::after{
+            &::after {
               content: '';
               position: absolute;
               width: 0px;
@@ -978,23 +1054,27 @@ svg {
               background-color: transparent;
               opacity: 0;
               transition: opacity .4s cubic-bezier(0.165, 0.84, 0.44, 1),
-                          background-color .4s cubic-bezier(0.165, 0.84, 0.44, 1),
-                          width .4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                background-color .4s cubic-bezier(0.165, 0.84, 0.44, 1),
+                width .4s cubic-bezier(0.165, 0.84, 0.44, 1);
             }
-            &::after{
+
+            &::after {
               left: auto;
               right: 0;
             }
+
             &.disabled {
               color: #ececec;
               pointer-events: none;
             }
+
             &.selectable-disabled {
               // background-color: #ffe7e7;
               border: 1px dashed #e57373;
               color: #a94442;
               cursor: pointer;
             }
+
             &.selectable-disabled-diagonal {
               position: relative;
               overflow: hidden;
@@ -1025,18 +1105,22 @@ svg {
                 background-color: #ffffff;
                 clip-path: polygon(0 100%, 0 0, 100% 100%);
               }
+
               // Ensure text (day number) is on top
               span {
                 position: relative;
                 z-index: 1;
               }
             }
+
             &.in-date-range {
               background-color: #B2D7FF;
             }
+
             &.start-date {
               position: relative;
               background-color: #B2D7FF;
+
               // transition: all .2s ease;
               &::before {
                 // content: '';
@@ -1049,9 +1133,11 @@ svg {
                 opacity: 1;
               }
             }
+
             &.end-date {
               position: relative;
               background-color: #B2D7FF;
+
               // transition: all .2s ease;
               &::after {
                 // content: '';
@@ -1062,19 +1148,22 @@ svg {
                 background-color: #0088FF;
                 opacity: 1;
                 transition: opacity .2s cubic-bezier(0.165, 0.84, 0.44, 1),
-                            background-color .2s cubic-bezier(0.165, 0.84, 0.44, 1),
-                            width .2s cubic-bezier(0.165, 0.84, 0.44, 1);
+                  background-color .2s cubic-bezier(0.165, 0.84, 0.44, 1),
+                  width .2s cubic-bezier(0.165, 0.84, 0.44, 1);
               }
             }
+
             &.today {
               border: solid 1px #0088ff;
             }
+
             &.forbidden {
               // color: #a10903;
               color: #fed9d8;
               cursor: not-allowed;
             }
-            &.start-date-diagonal  {
+
+            &.start-date-diagonal {
               position: relative;
               overflow: hidden;
 
@@ -1100,11 +1189,13 @@ svg {
                 background-color: #B2D7FF; // Bottom-right color
                 clip-path: polygon(100% 100%, 0 100%, 100% 0);
               }
+
               span {
                 position: relative;
                 z-index: 1;
               }
             }
+
             &.end-date-diagonal {
               position: relative;
               overflow: hidden;
@@ -1133,6 +1224,7 @@ svg {
                 background-color: #B2D7FF;
                 clip-path: polygon(0 100%, 0 0, 100% 100%);
               }
+
               // Ensure text (day number) is on top
               span {
                 position: relative;

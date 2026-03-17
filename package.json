@@ -1,6 +1,6 @@
 {
   "name": "@nivashr/vue-hotel-datepicker",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "A customizable hotel date-picker component for Vue 2 (forked and improved)",
   "main": "lib/vue-hotel-datepicker.umd.js",
   "module": "lib/vue-hotel-datepicker.esm.js",
@@ -11,12 +11,12 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build:lib": "vue-cli-service build --target lib --dest lib  --name vue-hotel-datepicker ./src/components/VueHotelDatepicker.vue",
+    "build:lib": "vue-cli-service build --target lib --dest lib  --name vue-hotel-datepicker ./src/index.js",
     "build:wc": "vue-cli-service build --target wc --dest wc --name vue-hotel-datepicker ./src/components/VueHotelDatepicker.vue",
     "lint": "vue-cli-service lint",
     "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit --coverage --no-cache",
-    "prebuild": "vue-cli-service build --target lib --dest lib  --name vue-hotel-datepicker ./src/components/VueHotelDatepicker.vue",
+    "prebuild": "vue-cli-service build --target lib --dest lib  --name vue-hotel-datepicker ./src/index.js",
     "postbuild": "rm -rf ./docs && cp -rf ./dist ./docs "
   },
   "author": "Northwalker <northwalker28@gmail.com>",

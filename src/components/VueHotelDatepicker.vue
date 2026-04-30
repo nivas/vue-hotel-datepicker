@@ -177,6 +177,10 @@ export default {
     useDiagonalStartEnd: {
       type: Boolean,
       default: false
+    },
+    resetMonthOnOpen: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -197,6 +201,12 @@ export default {
   },
   computed: {},
   watch: {
+    active(isActive) {
+      if (isActive && this.resetMonthOnOpen) {
+        this.startMonthDate = undefined
+        this.updateCalendar()
+      }
+    },
     // in case of two calendars that share state, this will update their start/end dates when one change
     startDate (newVal) {
       if (!newVal) {

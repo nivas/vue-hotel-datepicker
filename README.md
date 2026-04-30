@@ -17,6 +17,7 @@ List of improvements and customisations:
 - `node-sass` replaced with more modern `sass` package (ex `dart-sass`) so it can be built on macOS arm64
 - added extra properties for custom message inside the date picker
 - added render method and open method
+- added `resetMonthOnOpen` prop on both calendars
 
 #
 

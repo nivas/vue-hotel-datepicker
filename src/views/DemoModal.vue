@@ -16,6 +16,7 @@
         :minNight="1"
         :maxNight="30"
         message="Modal 1 with pre-selected dates."
+        :resetMonthOnOpen=true
       />
       <p v-if="selection1.start">Selected for Modal 1: {{ selection1.startFormatted }} to {{ selection1.endFormatted }}</p>
     </div>

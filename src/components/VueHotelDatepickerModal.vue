@@ -207,6 +207,10 @@ export default {
     closeOnOverlayClick: {
       type: Boolean,
       default: true
+    },
+    resetMonthOnOpen: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -391,6 +395,9 @@ export default {
 
       this.selectStartDate = undefined // Reset internal selection
       this.selectEndDate = undefined
+      if (this.resetMonthOnOpen) {
+        this.startMonthDate = undefined
+      }
 
       // Validate and Set Initial Range from props
       if (initialStartDate && initialEndDate) {

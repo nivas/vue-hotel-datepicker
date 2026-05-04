@@ -180,7 +180,7 @@ export default {
     },
     resetMonthOnOpen: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   data() {

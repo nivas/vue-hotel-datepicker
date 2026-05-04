@@ -124,11 +124,11 @@ export default {
       type: Boolean,
       default: false
     },
-    start: {
+    startDate: {
       type: [String, Date],
       default: undefined
     },
-    end: {
+    endDate: {
       type: [String, Date],
       default: undefined
     },
@@ -210,7 +210,7 @@ export default {
     },
     resetMonthOnOpen: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   data() {
@@ -233,43 +233,10 @@ export default {
         this.render() // Re-initialize and render when modal becomes active
       }
     },
-    // Watchers for dynamic prop changes that should trigger a re-render if modal is active
-    start() { if (this.active) this.render() },
-    end() { if (this.active) this.render() },
+    startDate() { if (this.active) this.render() },
+    endDate() { if (this.active) this.render() },
     minDate() { if (this.active) this.render() },
     maxDate() { if (this.active) this.render() },
-    // in case of two calendars that share state, this will update their start/end dates when one change
-    startDate (newVal) {
-      if (!newVal) {
-        this.selectStartDate = undefined;
-      } else {
-        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
-        const newDate = new Date(val);
-        newDate.setHours(0, 0, 0, 0);
-
-        // Only update if actually different to avoid loops
-        if (!this.selectStartDate || this.selectStartDate.getTime() !== newDate.getTime()) {
-          this.selectStartDate = newDate;
-          this.updateValue();
-          this.updateCalendar();
-        }
-      }
-    },
-    endDate (newVal) {
-      if (!newVal) {
-        this.selectEndDate = undefined;
-      } else {
-        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
-        const newDate = new Date(val);
-        newDate.setHours(0, 0, 0, 0);
-
-        if (!this.selectEndDate || this.selectEndDate.getTime() !== newDate.getTime()) {
-          this.selectEndDate = newDate;
-          this.updateValue();
-          this.updateCalendar();
-        }
-      }
-    },
 
     disabledDates: {
       immediate: true,
@@ -381,14 +348,14 @@ export default {
       let initialStartDate = null
       let initialEndDate = null
 
-      if (this.start) {
-        const startDateValue = typeof (this.start) === 'string' ? this.start : new Date(this.start).getTime()
+      if (this.startDate) {
+        const startDateValue = typeof (this.startDate) === 'string' ? this.startDate : this.startDate.getTime()
         initialStartDate = new Date(startDateValue)
         initialStartDate.setHours(0, 0, 0, 0)
       }
 
-      if (this.end) {
-        const endDateValue = typeof (this.end) === 'string' ? this.end : new Date(this.end).getTime()
+      if (this.endDate) {
+        const endDateValue = typeof (this.endDate) === 'string' ? this.endDate : this.endDate.getTime()
         initialEndDate = new Date(endDateValue)
         initialEndDate.setHours(0, 0, 0, 0)
       }

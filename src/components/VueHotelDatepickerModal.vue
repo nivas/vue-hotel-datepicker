@@ -280,7 +280,8 @@ export default {
         if (this.selectEndDate && !selectionInvalidated) {
           const endDateStr = this.displayDateText(this.selectEndDate)
           if (this.formattedDisabledDates.includes(endDateStr)) {
-            console.warn('[VHD Modal] Current end date became disabled. Resetting end date.')
+            console.warn('[VHD Modal] Current end date became disabled. Resetting selection.')
+            this.selectStartDate = undefined
             this.selectEndDate = undefined
             selectionInvalidated = true
           }

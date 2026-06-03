@@ -278,15 +278,15 @@ export default {
           }
         }
 
+        // If the end date becomes disabled, we need to check if the range is still valid.
+        // A simple approach is to clear the start date end date. (previously we only cleared end date leaving calendar in semi selected state and bad UX)
+        // A more complex one would check if it was a 'selectable-disabled' case,
+        // but given the prop changed externally, resetting is safer.
         if (this.selectEndDate && !selectionInvalidated) { // Only check if start is still valid
           const endDateStr = this.displayDateText(this.selectEndDate)
-          // Check if the current selectEndDate is now in the formatted list
           if (this.formattedDisabledDates.includes(endDateStr)) {
-            // If the end date becomes disabled, we need to check if the range is still valid.
-            // A simple approach is to clear the end date.
-            // A more complex one would check if it was a 'selectable-disabled' case,
-            // but given the prop changed externally, resetting is safer.
-            console.warn('VueHotelDatepicker: Current end date became disabled. Resetting end date.')
+            console.warn('VueHotelDatepicker: Current end date became disabled. Resetting selection.')
+            this.selectStartDate = undefined
             this.selectEndDate = undefined
             selectionInvalidated = true
           }

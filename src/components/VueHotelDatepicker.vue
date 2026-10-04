@@ -88,6 +88,7 @@
 import IconClose from '@/components/icon/IconClose'
 import IconArrowBack from '@/components/icon/IconArrowBack'
 import IconArrowForward from '@/components/icon/IconArrowForward'
+import { parseDate } from '@/utils/date'
 
 export default {
   name: 'VueHotelDatepicker',
@@ -211,9 +212,9 @@ export default {
     startDate (newVal) {
       if (!newVal) {
         this.selectStartDate = undefined;
+        this.updateValue();
       } else {
-        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
-        const newDate = new Date(val);
+        const newDate = parseDate(newVal);
         newDate.setHours(0, 0, 0, 0);
 
         // Only update if actually different to avoid loops
@@ -227,9 +228,9 @@ export default {
     endDate (newVal) {
       if (!newVal) {
         this.selectEndDate = undefined;
+        this.updateValue();
       } else {
-        const val = typeof newVal === 'string' ? newVal : newVal.getTime();
-        const newDate = new Date(val);
+        const newDate = parseDate(newVal);
         newDate.setHours(0, 0, 0, 0);
 
         if (!this.selectEndDate || this.selectEndDate.getTime() !== newDate.getTime()) {
@@ -246,7 +247,7 @@ export default {
 
         // 1. Update internal representations of disabled dates
         this.formattedDisabledDates = rawDates.map(d => {
-          const dateObj = new Date(d)
+          const dateObj = parseDate(d)
           if (isNaN(dateObj.getTime())) {
             console.error(`VueHotelDatepicker: Invalid date string "${d}" in disabledDates prop. It will be ignored for formatted list.`)
             return null
@@ -255,7 +256,7 @@ export default {
         }).filter(Boolean)
 
         this.disabledDateTimestamps = rawDates.map(d => {
-          const dateObj = new Date(d)
+          const dateObj = parseDate(d)
           if (isNaN(dateObj.getTime())) {
             console.error(`VueHotelDatepicker: Invalid date string "${d}" in disabledDates prop. It will be ignored for timestamps.`)
             return null
@@ -327,13 +328,11 @@ export default {
     render() {
       // Min/Max Date Initialization
       if (this.minDate) {
-        const minDateValue = typeof (this.minDate) === 'string' ? this.minDate : this.minDate.getTime()
-        this.selectMinDate = new Date(minDateValue)
+        this.selectMinDate = parseDate(this.minDate)
         this.selectMinDate.setHours(0, 0, 0, 0)
       }
       if (this.maxDate) {
-        const maxDateValue = typeof (this.maxDate) === 'string' ? this.maxDate : this.maxDate.getTime()
-        this.selectMaxDate = new Date(maxDateValue)
+        this.selectMaxDate = parseDate(this.maxDate)
         this.selectMaxDate.setHours(0, 0, 0, 0)
       }
 
@@ -341,8 +340,7 @@ export default {
       let initialEndDate = null
 
       if (this.startDate) {
-        const startDateValue = typeof (this.startDate) === 'string' ? this.startDate : this.startDate.getTime()
-        initialStartDate = new Date(startDateValue)
+        initialStartDate = parseDate(this.startDate)
         initialStartDate.setHours(0, 0, 0, 0)
         if (this.selectMinDate && this.selectMinDate.getTime() > initialStartDate.getTime()) {
           this.selectMinDate = new Date(initialStartDate.getTime())
@@ -350,8 +348,7 @@ export default {
       }
 
       if (this.endDate) {
-        const endDateValue = typeof (this.endDate) === 'string' ? this.endDate : this.endDate.getTime()
-        initialEndDate = new Date(endDateValue)
+        initialEndDate = parseDate(this.endDate)
         initialEndDate.setHours(0, 0, 0, 0)
       }
 

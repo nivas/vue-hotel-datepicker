@@ -6,6 +6,9 @@ As original, currently it supports only vue 2.
 
 List of improvements and customisations:
 
+- date-only ISO strings (`'2026-01-25'`) in `startDate`, `endDate`, `minDate`, `maxDate` and `disabledDates` now mean that calendar day in the visitor's timezone. Before 2.3.9 they were read as UTC midnight, so visitors in timezones west of UTC (the Americas) saw them one day early
+- input text is cleared when the parent clears `startDate` / `endDate`
+- modal mounted with `active` already `true` opens on the month of `startDate` / `minDate`
 - in case of two calendars that share state, we watch now startDate/endDate params for changes and update selection accordingly so when other calendar changes, other follows
 - date selection reworked again (version 8) in relation with diagonal start end selector and selecting disabled end date
   - for now disabledDates accept Date() formatted date eg. (2025-01-25 or 2025/25/25), not the format in `format`.

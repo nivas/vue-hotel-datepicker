@@ -16,7 +16,8 @@
   "files": [
     "lib",
     "src/index.js",
-    "src/components"
+    "src/components",
+    "src/utils"
   ],
   "scripts": {
     "dev": "vite",

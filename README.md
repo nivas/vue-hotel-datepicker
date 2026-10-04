@@ -98,7 +98,7 @@ Props shared by both components:
 | `minNight` | `Number` | `undefined` | Minimum number of nights. |
 | `maxNight` | `Number` | `undefined` | Maximum number of nights. |
 | `selectForward` | `Boolean` | `true` | If `true`, the calendar cannot be browsed to months before `minDate`. |
-| `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings `Date` can parse (`'2026/01/25'`, `'2026-01-25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
+| `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings (`'2026-01-25'`, `'2026/01/25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
 | `useDiagonalStartEnd` | `Boolean` | `false` | Draw start, end and selectable disabled days as diagonal halves (`start-date-diagonal`, `end-date-diagonal`, `selectable-disabled-diagonal` classes instead of `start-date`, `end-date`, `selectable-disabled`). |
 | `resetMonthOnOpen` | `Boolean` | `false` | When opened, jump back to the month of the selection (or of `minDate`) instead of staying on the last browsed month. |
 | `weekList` | `Array` | `['Sun.', 'Mon.', 'Tue.', 'Wen.', 'Thu.', 'Fri.', 'Sat.']` | Week day labels, Sunday first. |
@@ -124,6 +124,10 @@ Props shared by both components:
 | `cancelText` | `String` | `'Cancel'` | Text of the cancel button. |
 | `applyText` | `String` | `'Apply'` | Text of the apply button. |
 | `closeOnOverlayClick` | `Boolean` | `true` | Emit `cancel` on a click outside the dialog. |
+
+### Date strings
+
+Wherever a prop takes a date as a string (`startDate`, `endDate`, `minDate`, `maxDate`, `disabledDates`), a date-only ISO string such as `'2026-01-25'` means that calendar day in the visitor's timezone. Other strings are handed to the `Date` parser as they are.
 
 ## Events
 

@@ -183,6 +183,20 @@ describe('VueHotelDatepicker', () => {
       expect(wrapper.findAll('.day.end-date')).toHaveLength(0)
     })
 
+    it('clears the input when the parent clears both dates', async () => {
+      const wrapper = await openPicker({ startDate: d(2026, 5, 18), endDate: d(2026, 5, 21) })
+      expect(input(wrapper).element.value).toBe('2026/05/18 ~ 2026/05/21')
+      await wrapper.setProps({ startDate: undefined, endDate: undefined })
+      expect(input(wrapper).element.value).toBe('')
+      expect(wrapper.find('.vhd-calendar-header .info').text()).toBe('')
+    })
+
+    it('drops the end date from the input when the parent clears only the end date', async () => {
+      const wrapper = await openPicker({ startDate: d(2026, 5, 18), endDate: d(2026, 5, 21) })
+      await wrapper.setProps({ endDate: undefined })
+      expect(input(wrapper).element.value).toBe('2026/05/18 ~ ')
+    })
+
     it('lowers minDate to an initial start date that lies before it', async () => {
       const wrapper = await openPicker({ startDate: d(2026, 5, 5), endDate: d(2026, 5, 8) })
       expect(classes(wrapper, 5)).toContain('start-date')

@@ -22,6 +22,19 @@ describe('VueHotelDatepickerModal', () => {
       expect(monthTitle(wrapper, 'left')).toBe('May. 2026')
     })
 
+    it('opens on the month of the start date when it is mounted already active', async () => {
+      const wrapper = mountComponent(VueHotelDatepickerModal, { active: true, startDate: d(2026, 7, 3), endDate: d(2026, 7, 8) })
+      await wrapper.vm.$nextTick()
+      expect(monthTitle(wrapper, 'left')).toBe('Jul. 2026')
+      expect(classes(wrapper, 3)).toContain('start-date')
+    })
+
+    it('opens on the month of minDate when it is mounted already active', async () => {
+      const wrapper = mountComponent(VueHotelDatepickerModal, { active: true, minDate: d(2026, 8, 20) })
+      await wrapper.vm.$nextTick()
+      expect(monthTitle(wrapper, 'left')).toBe('Aug. 2026')
+    })
+
     it('never closes itself: the parent owns `active`', async () => {
       const wrapper = await openModal()
       await wrapper.find('a.cancel').trigger('click')

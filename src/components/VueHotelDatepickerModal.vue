@@ -111,6 +111,7 @@
 import IconClose from './icon/IconClose.vue'
 import IconArrowBack from './icon/IconArrowBack.vue'
 import IconArrowForward from './icon/IconArrowForward.vue'
+import { parseDate } from '../utils/date'
 
 export default {
   name: 'VueHotelDatepickerModal',
@@ -247,7 +248,7 @@ export default {
 
         // 1. Update internal representations of disabled dates
         this.formattedDisabledDates = rawDates.map(d => {
-          const dateObj = new Date(d) // Assuming 'd' from prop is reliably parsable
+          const dateObj = parseDate(d)
           if (isNaN(dateObj.getTime())) {
             console.error(`[VHD Modal] Invalid date string "${d}" in disabledDates prop. Ignored for formatted list.`)
             return null
@@ -256,7 +257,7 @@ export default {
         }).filter(Boolean)
 
         this.disabledDateTimestamps = rawDates.map(d => {
-          const dateObj = new Date(d)
+          const dateObj = parseDate(d)
           if (isNaN(dateObj.getTime())) {
             console.error(`[VHD Modal] Invalid date string "${d}" in disabledDates prop. Ignored for timestamps.`)
             return null
@@ -318,6 +319,9 @@ export default {
   },
   created() {
     if (this.active) {
+      // The immediate disabledDates watcher has already run and, with the modal active, drawn the calendar
+      // on the current month before min/start dates were read. Let render() pick the month again.
+      this.startMonthDate = undefined
       this.render()
     }
     // If not active, disabledDates watcher (immediate:true) will still process initial disabledDates
@@ -331,8 +335,7 @@ export default {
     render() {
       // Min/Max Date Initialization from props
       if (this.minDate) {
-        const minDateValue = typeof (this.minDate) === 'string' ? this.minDate : new Date(this.minDate).getTime()
-        this.selectMinDate = new Date(minDateValue)
+        this.selectMinDate = parseDate(this.minDate)
         this.selectMinDate.setHours(0, 0, 0, 0)
       } else {
         // Default minDate if not provided
@@ -341,8 +344,7 @@ export default {
       }
 
       if (this.maxDate) {
-        const maxDateValue = typeof (this.maxDate) === 'string' ? this.maxDate : new Date(this.maxDate).getTime()
-        this.selectMaxDate = new Date(maxDateValue)
+        this.selectMaxDate = parseDate(this.maxDate)
         this.selectMaxDate.setHours(0, 0, 0, 0)
       } else {
         this.selectMaxDate = null // No max date
@@ -352,14 +354,12 @@ export default {
       let initialEndDate = null
 
       if (this.startDate) {
-        const startDateValue = typeof (this.startDate) === 'string' ? this.startDate : this.startDate.getTime()
-        initialStartDate = new Date(startDateValue)
+        initialStartDate = parseDate(this.startDate)
         initialStartDate.setHours(0, 0, 0, 0)
       }
 
       if (this.endDate) {
-        const endDateValue = typeof (this.endDate) === 'string' ? this.endDate : this.endDate.getTime()
-        initialEndDate = new Date(endDateValue)
+        initialEndDate = parseDate(this.endDate)
         initialEndDate.setHours(0, 0, 0, 0)
       }
 

@@ -1,5 +1,6 @@
 <template>
   <div id="demoModal" class="demoModal">
+    <h2>Modal</h2>
     <div>
       <h3>Modal 1: Default (with initial selection)</h3>
       <button class="btn" @click="toggleModal1">Toggle Modal 1</button>
@@ -160,8 +161,7 @@ export default {
 
 <style lang="scss">
 #demoModal {
-  padding: 20px;
-  font-family: sans-serif;
+  margin-bottom: 120px;
 }
 .btn {
   padding: 8px 15px;

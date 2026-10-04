@@ -1,23 +1,21 @@
 <template>
   <div id="app">
     <h1>Vue Hotel Datepicker</h1>
-    <h2>A vue.js date range picker for hotel and more.</h2>
-    <h3>Nivas fork https://github.com/nivas/vue-hotel-datepicker</h3>
+    <h2>A Vue 3 date range picker for hotel and more.</h2>
     <div>
-      <a href="https://github.com/nivas/vue-hotel-datepicker" target="_blank" rel="noopener" title="View fork on Github" class="app-link">View fork on Github</a>
-      <a href="https://github.com/northwalker/vue-hotel-datepicker" target="_blank" rel="noopener" title="View on Github" class="app-link">View on Github</a>
-      <a href="https://github.com/northwalker/vue-hotel-datepicker/issues" target="_blank" rel="noopener" title="Report issue" class="app-link">Report issue</a>
+      <a href="https://github.com/nivas/vue-hotel-datepicker" target="_blank" rel="noopener" title="View on Github" class="app-link">View on Github</a>
+      <a href="https://www.npmjs.com/package/@nivashr/vue-hotel-datepicker" target="_blank" rel="noopener" title="View on npm" class="app-link">View on npm</a>
+      <a href="https://github.com/nivas/vue-hotel-datepicker/issues" target="_blank" rel="noopener" title="Report issue" class="app-link">Report issue</a>
     </div>
     <hr>
-    <!--  -->
-    <DemoDisabled />
-    <!--  -->
     <Demo />
-    <!-- modal demo -->
     <DemoModal />
     <div class="text-center">
       <img alt="Vue logo" src="@/assets/vue-logo.png">
-      <div>&copy; <a href="https://github.com/northwalker" target="_blank" rel="noopener" title="copyright" class="app-link">Northwalker</a></div>
+      <div>
+        &copy; <a href="https://nivas.hr" target="_blank" rel="noopener" title="copyright" class="app-link">Nivas</a>
+        &mdash; based on vue-hotel-datepicker by <a href="https://github.com/northwalker" target="_blank" rel="noopener" title="original author" class="app-link">Northwalker</a> (MIT)
+      </div>
     </div>
   </div>
 </template>
@@ -25,14 +23,12 @@
 <script>
 import Demo from './views/Demo.vue'
 import DemoModal from './views/DemoModal.vue'
-import DemoDisabled from './views/DemoDisabled.vue'
 
 export default {
   name: 'app',
   components: {
     Demo,
-    DemoModal,
-    DemoDisabled
+    DemoModal
   },
   data () {
     return {}

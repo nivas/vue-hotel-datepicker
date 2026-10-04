@@ -31,8 +31,12 @@
     "test:watch": "vitest",
     "prepublishOnly": "npm run test && npm run build:lib"
   },
-  "author": "Northwalker <northwalker28@gmail.com>",
+  "author": "Nivas (https://nivas.hr)",
   "contributors": [
+    {
+      "name": "Northwalker (original author)",
+      "url": "https://github.com/northwalker"
+    },
     {
       "name": "Neven Jacmenović",
       "url": "https://github.com/guycalledseven"

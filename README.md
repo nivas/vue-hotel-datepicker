@@ -1,8 +1,19 @@
 # Fork info
 
-In order to build this **node v14** is currently required.
+## Versions
 
-As original, currently it supports only vue 2.
+This is the **Vue 2** line of the package (branch `v2`). The Vue 3 version lives on the `master` branch.
+
+| Package version | Vue | Branch | Install |
+|---|---|---|---|
+| 3.x | Vue 3 | `master` | `npm install @nivashr/vue-hotel-datepicker` |
+| 2.x | Vue 2 | `v2` | `npm install @nivashr/vue-hotel-datepicker@2` |
+
+If your project is on Vue 2, install with the `@2` tag. Without it npm installs the newest version, which is for Vue 3 and does not work with Vue 2. In `package.json` this is a range such as `"@nivashr/vue-hotel-datepicker": "^2.3.9"`.
+
+Props, events, markup and class names are the same in 2.3.x and 3.x, so the component itself needs no template or CSS changes when a project moves from Vue 2 to Vue 3.
+
+In order to build this branch **node v14** is currently required.
 
 List of improvements and customisations:
 
@@ -51,9 +62,9 @@ v1.0.0: [Document](https://github.com/northwalker/vue-hotel-datepicker/tree/v1.0
 
 Use ```npm``` or ```yarn``` for installation
 ```bash
-$ npm install @nivashr/vue-hotel-datepicker
+$ npm install @nivashr/vue-hotel-datepicker@2
 # OR
-$ yarn add @nivashr/vue-hotel-datepicker
+$ yarn add @nivashr/vue-hotel-datepicker@2
 ```
 
 ## Usage

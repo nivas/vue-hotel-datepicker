@@ -183,6 +183,6 @@ $ npm run build:demo  # demo app for GitHub pages -> ./docs
 ## License
 [MIT License](http://opensource.org/licenses/MIT)
 
-Copyright &copy; 2025 [Nivas](https://nivas.hr)
+Copyright &copy; 2026 [NIVAS](https://nivas.hr)
 
 Copyright &copy; 2019 [Northwalker](https://northwalker.github.io)

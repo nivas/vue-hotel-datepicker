@@ -31,7 +31,7 @@
     "test:watch": "vitest",
     "prepublishOnly": "npm run test && npm run build:lib"
   },
-  "author": "Nivas (https://nivas.hr)",
+  "author": "NIVAS (https://nivas.hr)",
   "contributors": [
     {
       "name": "Northwalker (original author)",

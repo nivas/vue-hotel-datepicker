@@ -125,7 +125,7 @@ export default {
         const yyyy = datetime.getFullYear()
         const mm = datetime.getMonth() + 1 > 9 ? datetime.getMonth() + 1 : `0${datetime.getMonth() + 1}`
         const dd = datetime.getDate() > 9 ? datetime.getDate() : `0${datetime.getDate()}`
-        const displayStr = (this.format || 'YYYY/MM/DD').replace('YYYY', yyyy).replace('MM', mm).replace('DD', dd)
+        const displayStr = 'YYYY/MM/DD'.replace('YYYY', yyyy).replace('MM', mm).replace('DD', dd)
         return displayStr
       } else {
         return null

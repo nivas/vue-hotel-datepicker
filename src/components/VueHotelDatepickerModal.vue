@@ -108,9 +108,9 @@
 </template>
 
 <script>
-import IconClose from '@/components/icon/IconClose'
-import IconArrowBack from '@/components/icon/IconArrowBack'
-import IconArrowForward from '@/components/icon/IconArrowForward'
+import IconClose from './icon/IconClose.vue'
+import IconArrowBack from './icon/IconArrowBack.vue'
+import IconArrowForward from './icon/IconArrowForward.vue'
 
 export default {
   name: 'VueHotelDatepickerModal',
@@ -119,6 +119,7 @@ export default {
     IconArrowBack,
     IconArrowForward
   },
+  emits: ['apply', 'cancel', 'reset-selection', 'update-selection', 'error', 'selection-invalidated'],
   props: {
     active: {
       type: Boolean,
@@ -240,6 +241,7 @@ export default {
 
     disabledDates: {
       immediate: true,
+      deep: true, // Vue 3 no longer triggers array watchers on in-place mutation (push/splice) without it
       handler(newVal) {
         const rawDates = newVal || []
 
@@ -729,6 +731,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
 // Keep existing modal styles
 @keyframes fade-modal {
   0% {
@@ -794,7 +797,7 @@ export default {
       }
 
       &:hover svg {
-        fill: darken(#9b9b9b, 20%);
+        fill: color.adjust(#9b9b9b, $lightness: -20%);
       }
     }
   }
@@ -855,7 +858,7 @@ export default {
     }
 
     &:hover svg {
-      fill: darken(#7d7d7d, 20%);
+      fill: color.adjust(#7d7d7d, $lightness: -20%);
     }
 
     &.disabled {
@@ -1057,7 +1060,7 @@ export default {
         &::before {
           // Vertical bar indicator from non-modal
           width: 4px;
-          background-color: darken(#0088FF, 10%);
+          background-color: color.adjust(#0088FF, $lightness: -10%);
           opacity: 1;
         }
       }
@@ -1114,7 +1117,7 @@ export default {
         &::after {
           // Vertical bar indicator
           width: 4px;
-          background-color: darken(#0088FF, 10%);
+          background-color: color.adjust(#0088FF, $lightness: -10%);
           opacity: 1;
         }
       }
@@ -1270,7 +1273,7 @@ export default {
           background-color: #0088FF;
 
           &:hover {
-            background-color: darken(#0088FF, 10%);
+            background-color: color.adjust(#0088FF, $lightness: -10%);
           }
 
           &.disabled {

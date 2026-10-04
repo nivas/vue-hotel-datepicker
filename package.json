@@ -1,23 +1,34 @@
 {
   "name": "@nivashr/vue-hotel-datepicker",
-  "version": "2.3.8",
-  "description": "A customizable hotel date-picker component for Vue 2 (forked and improved)",
+  "version": "3.0.0",
+  "description": "A customizable hotel date-picker component for Vue 3 (forked and improved)",
   "main": "lib/vue-hotel-datepicker.umd.js",
-  "module": "lib/vue-hotel-datepicker.esm.js",
-  "unpkg": "lib/vue-hotel-datepicker.min.js",
-  "browser": {
-    "./sfc": "src/components/VueHotelDatepickerModal.vue"
+  "module": "lib/vue-hotel-datepicker.mjs",
+  "unpkg": "lib/vue-hotel-datepicker.umd.js",
+  "exports": {
+    ".": {
+      "import": "./lib/vue-hotel-datepicker.mjs",
+      "require": "./lib/vue-hotel-datepicker.umd.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
   },
+  "files": [
+    "lib",
+    "src/index.js",
+    "src/components"
+  ],
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "build:lib": "vue-cli-service build --target lib --dest lib  --name vue-hotel-datepicker ./src/index.js",
-    "build:wc": "vue-cli-service build --target wc --dest wc --name vue-hotel-datepicker ./src/components/VueHotelDatepicker.vue",
-    "lint": "vue-cli-service lint",
-    "test:e2e": "vue-cli-service test:e2e",
-    "test:unit": "vue-cli-service test:unit --coverage --no-cache",
-    "prebuild": "vue-cli-service build --target lib --dest lib  --name vue-hotel-datepicker ./src/index.js",
-    "postbuild": "rm -rf ./docs && cp -rf ./dist ./docs "
+    "dev": "vite",
+    "serve": "vite",
+    "build": "npm run build:lib && npm run build:demo",
+    "build:lib": "vite build",
+    "build:demo": "vite build --config vite.demo.config.mjs",
+    "lint": "eslint src tests",
+    "test": "vitest run",
+    "test:unit": "vitest run --coverage",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run test && npm run build:lib"
   },
   "author": "Northwalker <northwalker28@gmail.com>",
   "contributors": [
@@ -37,7 +48,7 @@
   },
   "keywords": [
     "vue",
-    "vue2",
+    "vue3",
     "vuejs",
     "datepicker",
     "date picker",
@@ -50,33 +61,26 @@
     "url": "https://github.com/nivas/vue-hotel-datepicker/issues"
   },
   "homepage": "https://github.com/nivas/vue-hotel-datepicker#readme",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "dependencies": {},
   "devDependencies": {
-    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
-    "@vue/cli-plugin-babel": "^3.10.0",
-    "@vue/cli-plugin-e2e-cypress": "^3.10.0",
-    "@vue/cli-plugin-eslint": "^3.10.0",
-    "@vue/cli-plugin-pwa": "^3.10.0",
-    "@vue/cli-plugin-unit-jest": "^3.10.0",
-    "@vue/cli-service": "^3.10.0",
-    "@vue/eslint-config-standard": "^4.0.0",
-    "@vue/test-utils": "1.0.0-beta.29",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "sass": "^1.69.5",
-    "sass-loader": "^7.1.0",
-    "vue": "^2.6.10",
-    "vue-template-compiler": "^2.6.10"
+    "@eslint/js": "^10.0.1",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "@vitest/coverage-v8": "^5.0.3",
+    "@vue/test-utils": "^2.5.1",
+    "eslint": "^10.12.0",
+    "eslint-plugin-vue": "^10.11.1",
+    "globals": "^17.13.0",
+    "jsdom": "^30.1.2",
+    "sass": "^1.105.1",
+    "vite": "^8.3.2",
+    "vite-plugin-css-injected-by-js": "^5.0.2",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.43"
   },
   "peerDependencies": {
-    "vue": "^2.6.10"
-  },
-  "directories": {
-    "doc": "docs",
-    "lib": "lib",
-    "test": "tests"
+    "vue": "^3.3.0"
   }
 }

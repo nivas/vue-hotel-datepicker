@@ -1,10 +1,9 @@
 .DS_Store
 node_modules
 /dist
+/lib
 /coverage
-
-/tests/e2e/videos/
-/tests/e2e/screenshots/
+*.tgz
 
 # local env files
 .env.local

@@ -85,9 +85,9 @@
   </div>
 </template>
 <script>
-import IconClose from '@/components/icon/IconClose'
-import IconArrowBack from '@/components/icon/IconArrowBack'
-import IconArrowForward from '@/components/icon/IconArrowForward'
+import IconClose from './icon/IconClose.vue'
+import IconArrowBack from './icon/IconArrowBack.vue'
+import IconArrowForward from './icon/IconArrowForward.vue'
 
 export default {
   name: 'VueHotelDatepicker',
@@ -97,6 +97,7 @@ export default {
     IconArrowForward
   },
   directives: {},
+  emits: ['beforeopen', 'open', 'close', 'reset', 'confirm', 'update', 'error', 'selection-invalidated'],
   props: {
     placeholder: {
       type: String,
@@ -241,7 +242,8 @@ export default {
     },
     disabledDates: {
       immediate: true,
-      handler(newVal, oldVal) { // oldVal is available if needed for comparison
+      deep: true, // Vue 3 no longer triggers array watchers on in-place mutation (push/splice) without it
+      handler(newVal) {
         const rawDates = newVal || []
 
         // 1. Update internal representations of disabled dates
@@ -757,6 +759,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@use 'sass:color';
 @mixin mobile-vhd() {
   .vhd {
     &-picker {
@@ -840,7 +843,7 @@ svg {
 
   @media (hover: hover) {
     &:hover {
-      fill: darken(#7d7d7d, 20%)
+      fill: color.adjust(#7d7d7d, $lightness: -20%)
     }
   }
 }
@@ -941,7 +944,7 @@ svg {
 
         @media (hover: hover) {
           &:hover {
-            color: darken(#7d7d7d, 20%)
+            color: color.adjust(#7d7d7d, $lightness: -20%)
           }
         }
       }
@@ -952,7 +955,7 @@ svg {
 
         @media (hover: hover) {
           &:hover {
-            color: darken(#0088ff, 20%)
+            color: color.adjust(#0088ff, $lightness: -20%)
           }
         }
       }

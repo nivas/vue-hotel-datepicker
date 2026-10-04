@@ -23,9 +23,9 @@
 </template>
 
 <script>
-import Demo from './views/Demo'
-import DemoModal from './views/DemoModal'
-import DemoDisabled from './views/DemoDisabled'
+import Demo from './views/Demo.vue'
+import DemoModal from './views/DemoModal.vue'
+import DemoDisabled from './views/DemoDisabled.vue'
 
 export default {
   name: 'app',
@@ -42,6 +42,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use 'sass:color';
 * {
   box-sizing: border-box;
 }
@@ -61,7 +62,7 @@ a.app-link {
   transition: color .4s ease;
   @media (hover: hover) {
     &:hover {
-      color: darken(#0088ff, 20%)
+      color: color.adjust(#0088ff, $lightness: -20%)
     }
   }
 }

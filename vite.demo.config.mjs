@@ -2,9 +2,9 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// Demo app build for GitHub pages (npm run build:demo) -> ./docs
+// Demo app build (npm run build:demo) -> ./docs, served by GitHub pages or uploaded anywhere
 export default defineConfig({
-  base: '/vue-hotel-datepicker/', // project name
+  base: './', // relative paths: the build works from any folder, GitHub pages included
   plugins: [vue()],
   resolve: {
     alias: {

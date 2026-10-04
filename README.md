@@ -102,6 +102,8 @@ Props shared by both components:
 | `useDiagonalStartEnd` | `Boolean` | `false` | Draw start, end and selectable disabled days as diagonal halves (`start-date-diagonal`, `end-date-diagonal`, `selectable-disabled-diagonal` classes instead of `start-date`, `end-date`, `selectable-disabled`). |
 | `resetMonthOnOpen` | `Boolean` | `false` | When opened, jump back to the month of the selection (or of `minDate`) instead of staying on the last browsed month. |
 | `autoClose` | `Boolean` | `false` | Finish as soon as the second date is selected, without a click on the confirm / apply button. `VueHotelDatepicker` emits `update`, then `confirm`, and closes. `VueHotelDatepickerModal` emits `update-selection`, then `apply`; the parent closes it in its `apply` handler as usual. |
+| `prices` | `Object` | `{}` | Content shown under the day number, keyed by ISO date: `{ '2026-01-25': 89, '2026-01-26': '95 €' }`. Values are displayed as given (format them in the parent); days without an entry, or with `null` / `''`, show nothing. With prices the day cells get taller. |
+| `legend` | `Array` | `[]` | Legend shown under the calendar, above `message`: `[{ type: 'available', label: 'Available' }, …]`. Each item is a swatch drawn like the day state it explains, plus your label. Types: `available`, `arrival` (start day), `departure` (end day), `occupied` (disabled day), `checkout` (disabled day a range can end on). Any other `type` becomes the class `vhd-legend-<type>` for your own styling. With `useDiagonalStartEnd` the swatches are drawn as half days. |
 | `weekList` | `Array` | `['Sun.', 'Mon.', 'Tue.', 'Wen.', 'Thu.', 'Fri.', 'Sat.']` | Week day labels, Sunday first. |
 | `monthList` | `Array` | `['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct', 'Nov.', 'Dec.']` | Month labels. |
 | `fromText` | `String` | `'From'` | Label of the start date. |
@@ -129,6 +131,26 @@ Props shared by both components:
 ### Date strings
 
 Wherever a prop takes a date as a string (`startDate`, `endDate`, `minDate`, `maxDate`, `disabledDates`), a date-only ISO string such as `'2026-01-25'` means that calendar day in the visitor's timezone. Other strings are handed to the `Date` parser as they are.
+
+## Slots
+
+Both components have a `legend` slot, which replaces the swatches of the `legend` prop with your own content, and a `day` slot, rendered under the day number of every day. It replaces the default price element and receives:
+
+| Slot prop | Type | Description |
+|---|---|---|
+| `date` | `Date` | The day. |
+| `isoDate` | `String` | The day as `'YYYY-MM-DD'`, the key format of `prices`. |
+| `price` | any | The entry of `prices` for that day, `undefined` when there is none. |
+
+```vue
+<VueHotelDatepicker :prices="prices">
+  <template #day="{ price }">
+    <small v-if="price !== undefined" :class="{ cheap: price < 90 }">{{ price }} €</small>
+  </template>
+</VueHotelDatepicker>
+```
+
+The default price element has the class `vhd-day-price`. The picker gets the class `vhd-has-day-content` when `prices` is not empty or the `day` slot is used.
 
 ## Events
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="active" class="date-range-picker-modal" @click="handleOverlayClick">
+  <div v-if="active" :class="{ 'vhd-has-day-content': hasDayContent }" class="date-range-picker-modal" @click="handleOverlayClick">
     <div class="date-range-picker-modal-wrapper">
       <div class="date-range-picker-modal-container" @click.stop>
         <div class="date-range-picker-modal-header">
@@ -41,6 +41,9 @@
                     <span v-if="startDay">
                       {{ startDay.getDate() }}
                     </span>
+                    <slot v-if="startDay" name="day" :date="startDay" :isoDate="isoDate(startDay)" :price="dayPrice(startDay)">
+                      <small v-if="dayPrice(startDay) !== undefined" class="vhd-day-price">{{ dayPrice(startDay) }}</small>
+                    </slot>
                   </div>
                 </div>
               </div>
@@ -66,9 +69,19 @@
                     <span v-if="endDay">
                       {{ endDay.getDate() }}
                     </span>
+                    <slot v-if="endDay" name="day" :date="endDay" :isoDate="isoDate(endDay)" :price="dayPrice(endDay)">
+                      <small v-if="dayPrice(endDay) !== undefined" class="vhd-day-price">{{ dayPrice(endDay) }}</small>
+                    </slot>
                   </div>
                 </div>
               </div>
+            </div>
+            <div v-if="legend.length || $slots.legend" class="vhd-calendar-legend">
+              <slot name="legend">
+                <span v-for="(item, index) in legend" :key="index" class="vhd-legend-item">
+                  <i :class="['vhd-legend-' + item.type, { diagonal: useDiagonalStartEnd }]" class="vhd-legend-swatch" />{{ item.label }}
+                </span>
+              </slot>
             </div>
             <div v-if="message" class="vhd-calendar-message">
               {{ message }}
@@ -111,7 +124,7 @@
 import IconClose from './icon/IconClose.vue'
 import IconArrowBack from './icon/IconArrowBack.vue'
 import IconArrowForward from './icon/IconArrowForward.vue'
-import { parseDate } from '../utils/date'
+import { parseDate, toIsoDate } from '../utils/date'
 
 export default {
   name: 'VueHotelDatepickerModal',
@@ -217,6 +230,16 @@ export default {
     autoClose: {
       type: Boolean,
       default: false
+    },
+    // Content shown under the day number, keyed by ISO date: { '2026-05-12': 89, '2026-05-13': '95 €' }
+    prices: {
+      type: Object,
+      default: () => ({})
+    },
+    // Legend under the calendar: [{ type: 'available' | 'arrival' | 'departure' | 'occupied' | 'checkout', label: 'Available' }]
+    legend: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -231,6 +254,12 @@ export default {
       endMonthAry: [],
       formattedDisabledDates: [],
       disabledDateTimestamps: [] // Added for numeric timestamps
+    }
+  },
+  computed: {
+    // day cells get taller when they hold a price or custom `day` slot content
+    hasDayContent() {
+      return !!this.$slots.day || Object.keys(this.prices || {}).length > 0
     }
   },
   watch: {
@@ -433,6 +462,15 @@ export default {
       this.selectEndDate = undefined
       this.$emit('reset-selection') // Specific event for selection reset
       this.updateCalendar()
+    },
+
+    isoDate(datetime) {
+      return toIsoDate(datetime)
+    },
+
+    dayPrice(datetime) {
+      const price = this.prices ? this.prices[toIsoDate(datetime)] : undefined
+      return price === null || price === '' ? undefined : price
     },
 
     displayDateText(datetime) {
@@ -1185,15 +1223,116 @@ export default {
   }
 }
 
-// Message area (from non-modal)
+// Day cells that hold a price or custom `day` slot content: taller, day number on top
+.vhd-has-day-content {
+  .calendar-date {
+    min-height: 324px; // 6 rows * 54px
+
+    .week {
+      height: 54px;
+
+      .day {
+        height: 54px;
+        flex-direction: column;
+        line-height: 1;
+      }
+    }
+  }
+}
+
+// Legend: swatches drawn like the day states they explain
+.vhd-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #505050;
+}
+
+.vhd-legend {
+  &-item {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  &-swatch {
+    display: inline-block;
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+  }
+
+  &-arrival {
+    border-color: #B2D7FF;
+    border-left: 3px solid #0088FF;
+    background: #B2D7FF;
+  }
+
+  &-departure {
+    border-color: #B2D7FF;
+    border-right: 3px solid #0088FF;
+    background: #B2D7FF;
+  }
+
+  // this picker fills the start and end day completely
+  &-arrival:not(.diagonal),
+  &-departure:not(.diagonal) {
+    border-color: #0088FF;
+    background: #0088FF;
+  }
+
+  // half days, as drawn with useDiagonalStartEnd
+  &-arrival.diagonal {
+    border: 1px solid #B2D7FF;
+    background: linear-gradient(to bottom right, #ffffff 50%, #B2D7FF 50%);
+  }
+
+  &-departure.diagonal {
+    border: 1px solid #B2D7FF;
+    background: linear-gradient(to top right, #B2D7FF 50%, #ffffff 50%);
+  }
+
+  &-occupied {
+    border-color: #fed9d8;
+    background: #fed9d8;
+  }
+
+  &-checkout {
+    border: 1px dashed #e57373;
+    background: #ffe7e7;
+
+    &.diagonal {
+      background: linear-gradient(to top right, #ffffff 50%, #ffe7e7 50%);
+    }
+  }
+}
+
+// Price, or other default content, under the day number
+.vhd-day-price {
+  display: block;
+  position: relative;
+  z-index: 1; // above the diagonal start/end backgrounds
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: .75;
+}
+
+// Message area: a neutral note under the calendar (a footnote for prices, a hint for the guest)
 .vhd-calendar-message {
-  padding: 8px;
-  text-align: center;
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  margin-top: 16px; // Space above footer
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #7d7d7d;
 }
 
 .bottom {

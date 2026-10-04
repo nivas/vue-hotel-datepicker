@@ -69,6 +69,34 @@
       <p v-if="selection3.start">Selected for Modal 3: {{ selection3.startFormatted }} to {{ selection3.endFormatted }}</p>
     </div>
 
+    <hr style="margin: 20px 0;">
+
+    <div>
+      <h3>Modal 4: Day prices and a legend (<code>prices</code>, <code>legend</code>), localized</h3>
+      <button class="btn" @click="toggleModal4">Toggle Modal 4</button>
+      <VueHotelDatepickerModal
+        :active="activeModal4"
+        @apply="result => handleApply(result, 4)"
+        @cancel="() => handleCancel(4)"
+        @reset-selection="() => handleReset(4)"
+        @error="handleError"
+        :useDiagonalStartEnd="true"
+        :prices="pricesForModal4"
+        :legend="[
+          { type: 'available', label: 'Dostupno' },
+          { type: 'arrival', label: 'Dolazak' },
+          { type: 'departure', label: 'Odlazak' },
+          { type: 'occupied', label: 'Zauzeto' }
+        ]"
+        :disabledDates="disabledDatesForModal2"
+        :startDate="selection4.start"
+        :endDate="selection4.end"
+        :format="'DD.MM.YYYY'"
+        message="* U kalendaru je prikazana najniža cijena po noćenju."
+      />
+      <p v-if="selection4.start">Selected for Modal 4: {{ selection4.startFormatted }} to {{ selection4.endFormatted }}</p>
+    </div>
+
     <div v-if="errorMessage" style="color: red; margin-top: 10px;">
       Error: {{ errorMessage }}
     </div>
@@ -88,10 +116,13 @@ export default {
       activeModal1: false,
       activeModal2: false,
       activeModal3: false,
+      activeModal4: false,
+      pricesForModal4: {},
       disabledDatesForModal2: [],
       selection1: { start: null, end: null, startFormatted: '', endFormatted: '' },
       selection2: { start: null, end: null, startFormatted: '', endFormatted: '' },
       selection3: { start: null, end: null, startFormatted: '', endFormatted: '' },
+      selection4: { start: null, end: null, startFormatted: '', endFormatted: '' },
 
       initialStartDateForModal1: null,
       initialEndDateForModal1: null,
@@ -123,6 +154,16 @@ export default {
       now.getTime() + (1000 * 60 * 60 * 24 * 21)
     ]
     this.disabledDatesForModal2 = disableDateValues.map(ts => new Date(ts))
+
+    // Config for Modal 4: a made-up rate per night, none for the disabled days
+    const disabledDays = this.disabledDatesForModal2.map(date => this.displayDateText(date, 'YYYY-MM-DD'))
+    for (let days = 0; days < 150; days++) {
+      const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days)
+      const key = this.displayDateText(date, 'YYYY-MM-DD')
+      if (disabledDays.includes(key)) continue
+      const weekend = date.getDay() === 5 || date.getDay() === 6 ? 35 : 0
+      this.pricesForModal4[key] = 85 + weekend + (date.getDate() * 7) % 13 + Math.floor(days / 30) * 6
+    }
   },
   methods: {
     toggleModal1 () {
@@ -133,6 +174,10 @@ export default {
     toggleModal2 () {
       this.activeModal2 = !this.activeModal2
       if (this.activeModal2) this.activeModal1 = false
+      this.errorMessage = ''
+    },
+    toggleModal4 () {
+      this.activeModal4 = !this.activeModal4
       this.errorMessage = ''
     },
     toggleModal3 () {
@@ -150,6 +195,9 @@ export default {
       } else if (modalNumber === 3) {
         this.selection3 = result
         this.activeModal3 = false
+      } else if (modalNumber === 4) {
+        this.selection4 = result
+        this.activeModal4 = false
       }
       this.errorMessage = ''
     },
@@ -161,6 +209,8 @@ export default {
         this.activeModal2 = false
       } else if (modalNumber === 3) {
         this.activeModal3 = false
+      } else if (modalNumber === 4) {
+        this.activeModal4 = false
       }
       this.errorMessage = ''
     },
@@ -172,6 +222,8 @@ export default {
         this.selection2 = { start: null, end: null, startFormatted: '', endFormatted: '' }
       } else if (modalNumber === 3) {
         this.selection3 = { start: null, end: null, startFormatted: '', endFormatted: '' }
+      } else if (modalNumber === 4) {
+        this.selection4 = { start: null, end: null, startFormatted: '', endFormatted: '' }
       }
       this.errorMessage = ''
     },

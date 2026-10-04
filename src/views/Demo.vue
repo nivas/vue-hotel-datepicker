@@ -139,6 +139,29 @@
         <li v-else>No event yet.</li>
       </ul>
     </div>
+
+    <h2>Day prices</h2>
+    <div class="demo-example">
+      <p>
+        19. A price under every day with the <code>prices</code> prop: an object keyed by ISO date, for example
+        <code>{ '{{ priceSampleKey }}': {{ dayPrices[priceSampleKey] }} }</code>. Days without an entry (here the sold-out ones) stay empty.
+        The <code>legend</code> prop adds labelled swatches drawn like the day states, and <code>message</code> the footnote.
+      </p>
+      <VueHotelDatepicker :prices="dayPrices" :disabledDates="soldOutDates" :useDiagonalStartEnd="true"
+        :legend="priceLegend" message="* The calendar shows the lowest price per night, in EUR." />
+    </div>
+    <div class="demo-example">
+      <p>
+        20. The <code>#day</code> slot replaces the default price. It receives <code>date</code>, <code>isoDate</code> and
+        <code>price</code>, so the page decides how a day looks. Here the cheapest nights (up to {{ lowPrice }} €) are highlighted.
+      </p>
+      <VueHotelDatepicker :prices="dayPrices" :disabledDates="soldOutDates" :useDiagonalStartEnd="true" :legend="priceLegend">
+        <template #day="{ price }">
+          <small v-if="price !== undefined" class="demo-price" :class="{ 'demo-price-low': price <= lowPrice }">{{ price }} €</small>
+        </template>
+      </VueHotelDatepicker>
+      <p class="demo-legend"><span class="demo-price demo-price-low">89 €</span> best price</p>
+    </div>
   </div>
 </template>
 
@@ -162,6 +185,17 @@ export default {
       eventDisabledDates: [],
       eventLog: [],
       autoCloseResult: null,
+      dayPrices: {},
+      soldOutDates: [],
+      priceSampleKey: '',
+      lowPrice: 0,
+      priceLegend: [
+        { type: 'available', label: 'Available' },
+        { type: 'arrival', label: 'Arrival' },
+        { type: 'departure', label: 'Departure' },
+        { type: 'occupied', label: 'Occupied' },
+        { type: 'checkout', label: 'Check-out only' }
+      ],
       shared: { start: undefined, end: undefined },
       invalidation: { key: 0, start: undefined, end: undefined, inside: undefined, disabledDates: [], event: null }
     }
@@ -179,6 +213,18 @@ export default {
 
     this.disabledDates = [7, 8, 13, 16, 21].map(days => this.displayDateText(new Date(today.getTime() + DAY * days)))
     this.eventDisabledDates = [this.displayDateText(inDays(6))]
+
+    // Day prices: a made-up rate per night for the next months, none for sold-out days
+    const isoDate = date => this.displayDateText(date).replace(/\//g, '-')
+    this.soldOutDates = [9, 10, 11, 24, 25].map(days => isoDate(inDays(days)))
+    for (let days = 0; days < 150; days++) {
+      const date = inDays(days)
+      if (this.soldOutDates.includes(isoDate(date))) continue
+      const weekend = date.getDay() === 5 || date.getDay() === 6 ? 35 : 0
+      this.dayPrices[isoDate(date)] = 85 + weekend + (date.getDate() * 7) % 13 + Math.floor(days / 30) * 6
+    }
+    this.priceSampleKey = isoDate(inDays(1))
+    this.lowPrice = Math.min(...Object.values(this.dayPrices)) + 3
 
     this.invalidation.start = inDays(3)
     this.invalidation.end = inDays(8)
@@ -251,6 +297,37 @@ export default {
     color: #7d7d7d;
     li {
       margin-bottom: 6px;
+    }
+  }
+  &-price {
+    display: block;
+    position: relative;
+    z-index: 1;
+    margin-top: 4px;
+    font-size: 10px;
+    line-height: 1;
+    white-space: nowrap;
+    color: inherit;
+    opacity: .75;
+    &-low {
+      color: #1a9a4b;
+      font-weight: 700;
+      opacity: 1;
+    }
+  }
+  // days that cannot be picked right now keep a faded price
+  .day.disabled .demo-price {
+    color: inherit;
+    font-weight: inherit;
+    opacity: .75;
+  }
+  &-legend {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #7d7d7d;
+    .demo-price {
+      display: inline;
+      font-size: 12px;
     }
   }
   code {

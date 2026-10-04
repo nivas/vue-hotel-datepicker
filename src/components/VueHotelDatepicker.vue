@@ -1,5 +1,5 @@
 <template>
-  <div :class="mobile.toLowerCase()" class="vhd-container">
+  <div :class="[mobile.toLowerCase(), { 'vhd-has-day-content': hasDayContent }]" class="vhd-container">
     <input v-model="value" :placeholder="placeholder" type="text" class="vhd-input"
       aria-label="vue-hotel-datepicker-input" @mousedown.prevent="toggle" @focus.prevent="toggle">
     <div v-if="active" class="vhd-picker">
@@ -44,6 +44,9 @@
                 <span v-if="startDay">
                   {{ startDay.getDate() }}
                 </span>
+                <slot v-if="startDay" name="day" :date="startDay" :isoDate="isoDate(startDay)" :price="dayPrice(startDay)">
+                  <small v-if="dayPrice(startDay) !== undefined" class="vhd-day-price">{{ dayPrice(startDay) }}</small>
+                </slot>
               </div>
             </div>
           </div>
@@ -69,9 +72,19 @@
                 <span v-if="endDay">
                   {{ endDay.getDate() }}
                 </span>
+                <slot v-if="endDay" name="day" :date="endDay" :isoDate="isoDate(endDay)" :price="dayPrice(endDay)">
+                  <small v-if="dayPrice(endDay) !== undefined" class="vhd-day-price">{{ dayPrice(endDay) }}</small>
+                </slot>
               </div>
             </div>
           </div>
+        </div>
+        <div v-if="legend.length || $slots.legend" class="vhd-calendar-legend">
+          <slot name="legend">
+            <span v-for="(item, index) in legend" :key="index" class="vhd-legend-item">
+              <i :class="['vhd-legend-' + item.type, { diagonal: useDiagonalStartEnd }]" class="vhd-legend-swatch" />{{ item.label }}
+            </span>
+          </slot>
         </div>
         <div v-if="message" class="vhd-calendar-message">
           {{ message }}
@@ -88,7 +101,7 @@
 import IconClose from './icon/IconClose.vue'
 import IconArrowBack from './icon/IconArrowBack.vue'
 import IconArrowForward from './icon/IconArrowForward.vue'
-import { parseDate } from '../utils/date'
+import { parseDate, toIsoDate } from '../utils/date'
 
 export default {
   name: 'VueHotelDatepicker',
@@ -187,6 +200,16 @@ export default {
     autoClose: {
       type: Boolean,
       default: false
+    },
+    // Content shown under the day number, keyed by ISO date: { '2026-05-12': 89, '2026-05-13': '95 €' }
+    prices: {
+      type: Object,
+      default: () => ({})
+    },
+    // Legend under the calendar: [{ type: 'available' | 'arrival' | 'departure' | 'occupied' | 'checkout', label: 'Available' }]
+    legend: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -205,7 +228,12 @@ export default {
       disabledDateTimestamps: [] // Store disabled dates as numeric timestamps (normalized)
     }
   },
-  computed: {},
+  computed: {
+    // day cells get taller when they hold a price or custom `day` slot content
+    hasDayContent() {
+      return !!this.$slots.day || Object.keys(this.prices || {}).length > 0
+    }
+  },
   watch: {
     active(isActive) {
       if (isActive && this.resetMonthOnOpen) {
@@ -435,6 +463,15 @@ export default {
       } else if (this.selectStartDate && !this.selectEndDate) {
         console.warn('Please select an end date.')
       }
+    },
+
+    isoDate(datetime) {
+      return toIsoDate(datetime)
+    },
+
+    dayPrice(datetime) {
+      const price = this.prices ? this.prices[toIsoDate(datetime)] : undefined
+      return price === null || price === '' ? undefined : price
     },
 
     displayDateText(datetime) {
@@ -1255,6 +1292,99 @@ svg {
       }
     }
   }
+}
+
+// Day cells that hold a price or custom `day` slot content: taller, day number on top
+.vhd-container.vhd-has-day-content {
+  .vhd-calendar .calendar-date .week {
+    height: 54px;
+
+    .day {
+      height: 54px;
+      padding-top: 11px;
+      line-height: 1;
+    }
+  }
+}
+
+// Legend: swatches drawn like the day states they explain
+.vhd-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #505050;
+}
+
+.vhd-legend {
+  &-item {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  &-swatch {
+    display: inline-block;
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+  }
+
+  &-arrival {
+    border-color: #B2D7FF;
+    border-left: 3px solid #0088FF;
+    background: #B2D7FF;
+  }
+
+  &-departure {
+    border-color: #B2D7FF;
+    border-right: 3px solid #0088FF;
+    background: #B2D7FF;
+  }
+
+  // half days, as drawn with useDiagonalStartEnd
+  &-arrival.diagonal {
+    border: 1px solid #B2D7FF;
+    background: linear-gradient(to bottom right, #ffffff 50%, #B2D7FF 50%);
+  }
+
+  &-departure.diagonal {
+    border: 1px solid #B2D7FF;
+    background: linear-gradient(to top right, #B2D7FF 50%, #ffffff 50%);
+  }
+
+  &-occupied {
+    border-color: #fed9d8;
+    background: #fed9d8;
+  }
+
+  &-checkout {
+    border: 1px dashed #e57373;
+    background: #ffe7e7;
+
+    &.diagonal {
+      background: linear-gradient(to top right, #ffffff 50%, #ffe7e7 50%);
+    }
+  }
+}
+
+// Price, or other default content, under the day number
+.vhd-day-price {
+  display: block;
+  position: relative;
+  z-index: 1; // above the diagonal start/end backgrounds
+  margin-top: 5px;
+  font-size: 10px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: .75;
 }
 
 @media only screen and (max-width: 767.98px) {

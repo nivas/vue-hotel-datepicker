@@ -15,8 +15,8 @@ export const fmt = date => {
 
 const mounted = []
 
-export function mountComponent (component, props = {}) {
-  const wrapper = mount(component, { props })
+export function mountComponent (component, props = {}, slots = {}) {
+  const wrapper = mount(component, { props, slots })
   mounted.push(wrapper)
   return wrapper
 }
@@ -26,16 +26,16 @@ export function unmountAll () {
 }
 
 /** Inline picker, already opened. */
-export async function openPicker (props = {}) {
-  const wrapper = mountComponent(VueHotelDatepicker, props)
+export async function openPicker (props = {}, slots = {}) {
+  const wrapper = mountComponent(VueHotelDatepicker, props, slots)
   wrapper.vm.open()
   await wrapper.vm.$nextTick()
   return wrapper
 }
 
 /** Modal picker, mounted inactive and then activated by the parent, the way it is used in an app. */
-export async function openModal (props = {}) {
-  const wrapper = mountComponent(VueHotelDatepickerModal, props)
+export async function openModal (props = {}, slots = {}) {
+  const wrapper = mountComponent(VueHotelDatepickerModal, props, slots)
   await wrapper.setProps({ active: true })
   return wrapper
 }
@@ -49,7 +49,11 @@ const panel = side => `.vhd-calendar-${side}`
 
 /** Day cell showing day-of-month `n` in the left (default) or right month. */
 export function day (wrapper, n, side = 'left') {
-  const cell = all(wrapper, `${panel(side)} .day`).find(c => c.text() === String(n))
+  // match on the day number only: a cell can also hold a price or custom slot content
+  const cell = all(wrapper, `${panel(side)} .day`).find(c => {
+    const number = c.find('span')
+    return number.exists() && number.text() === String(n)
+  })
   if (!cell) throw new Error(`day ${n} not found in ${side} month`)
   return cell
 }
@@ -62,7 +66,10 @@ export const classes = (wrapper, n, side = 'left') => day(wrapper, n, side).clas
 
 /** Month as rendered: array of weeks, each an array of 7 strings ('' for an empty cell). */
 export function grid (wrapper, side = 'left') {
-  return all(wrapper, `${panel(side)} .week`).map(week => all(week, '.day').map(c => c.text()))
+  return all(wrapper, `${panel(side)} .week`).map(week => all(week, '.day').map(c => {
+    const number = c.find('span')
+    return number.exists() ? number.text() : ''
+  }))
 }
 
 export const monthTitle = (wrapper, side = 'left') => wrapper.find(`${panel(side)} .calendar-month-title`).text()
@@ -81,3 +88,9 @@ export function arrow (wrapper, offset) {
 }
 
 export const last = list => list && list[list.length - 1]
+
+/** Price (or other default day content) shown in a day cell, undefined when there is none. */
+export function price (wrapper, n, side = 'left') {
+  const el = day(wrapper, n, side).find('.vhd-day-price')
+  return el.exists() ? el.text() : undefined
+}

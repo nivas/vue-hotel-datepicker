@@ -183,6 +183,10 @@ export default {
     resetMonthOnOpen: {
       type: Boolean,
       default: false
+    },
+    autoClose: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -750,6 +754,11 @@ export default {
 
         this.updateValue()
         this.$emit('update', { start: potentialStartDateStr, end: potentialEndDateStr })
+
+        // autoClose: the range is complete, behave as if the confirm button was clicked
+        if (this.autoClose) {
+          this.confirm()
+        }
       }
     }
   }

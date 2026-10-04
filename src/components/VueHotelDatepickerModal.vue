@@ -213,6 +213,10 @@ export default {
     resetMonthOnOpen: {
       type: Boolean,
       default: false
+    },
+    autoClose: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -724,6 +728,12 @@ export default {
         this.selectStartDate = potentialStartDate
         this.selectEndDate = potentialEndDate
         this.$emit('update-selection', { start: new Date(this.selectStartDate.getTime()), end: new Date(this.selectEndDate.getTime()) })
+
+        // autoClose: the range is complete, behave as if the apply button was clicked.
+        // The parent closes the modal in its apply handler, as it does for the button.
+        if (this.autoClose) {
+          this.handleApply()
+        }
       }
     }
   }

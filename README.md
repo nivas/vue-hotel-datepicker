@@ -101,6 +101,7 @@ Props shared by both components:
 | `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings (`'2026-01-25'`, `'2026/01/25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
 | `useDiagonalStartEnd` | `Boolean` | `false` | Draw start, end and selectable disabled days as diagonal halves (`start-date-diagonal`, `end-date-diagonal`, `selectable-disabled-diagonal` classes instead of `start-date`, `end-date`, `selectable-disabled`). |
 | `resetMonthOnOpen` | `Boolean` | `false` | When opened, jump back to the month of the selection (or of `minDate`) instead of staying on the last browsed month. |
+| `autoClose` | `Boolean` | `false` | Finish as soon as the second date is selected, without a click on the confirm / apply button. `VueHotelDatepicker` emits `update`, then `confirm`, and closes. `VueHotelDatepickerModal` emits `update-selection`, then `apply`; the parent closes it in its `apply` handler as usual. |
 | `weekList` | `Array` | `['Sun.', 'Mon.', 'Tue.', 'Wen.', 'Thu.', 'Fri.', 'Sat.']` | Week day labels, Sunday first. |
 | `monthList` | `Array` | `['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct', 'Nov.', 'Dec.']` | Month labels. |
 | `fromText` | `String` | `'From'` | Label of the start date. |
@@ -136,7 +137,7 @@ Wherever a prop takes a date as a string (`startDate`, `endDate`, `minDate`, `ma
 | Event | Payload | When |
 |---|---|---|
 | `update` | `{ start, end }` formatted strings, `end` is `null` until the range is complete | A day was selected. |
-| `confirm` | `{ start, end }` formatted strings | Confirm button; the picker closes. |
+| `confirm` | `{ start, end }` formatted strings | Confirm button, or the second date with `autoClose`; the picker closes. |
 | `reset` | – | Reset button. |
 | `beforeopen` | – | The input got focus, before the picker opens. |
 | `open` | – | The picker opened. |
@@ -149,7 +150,7 @@ Wherever a prop takes a date as a string (`startDate`, `endDate`, `minDate`, `ma
 | Event | Payload | When |
 |---|---|---|
 | `update-selection` | `{ start, end }` `Date` objects, `end` is `null` until the range is complete | A day was selected. |
-| `apply` | `{ start, end, startFormatted, endFormatted }` | Apply button with a complete range. |
+| `apply` | `{ start, end, startFormatted, endFormatted }` | Apply button with a complete range, or the second date with `autoClose`. |
 | `cancel` | – | Cancel button, close icon or overlay click. |
 | `reset-selection` | – | Reset button. |
 | `error` | message `String` | As above, and apply without a complete range. |

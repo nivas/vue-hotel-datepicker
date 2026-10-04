@@ -160,6 +160,70 @@ describe('VueHotelDatepicker', () => {
     })
   })
 
+  describe('autoClose', () => {
+    it('is off by default: the picker stays open after the second date', async () => {
+      const wrapper = await openPicker()
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 15)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(true)
+      expect(wrapper.emitted('confirm')).toBeUndefined()
+    })
+
+    it('stays open after the first date', async () => {
+      const wrapper = await openPicker({ autoClose: true })
+      await clickDay(wrapper, 12)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(true)
+      expect(wrapper.emitted('confirm')).toBeUndefined()
+    })
+
+    it('emits update, then confirm, and closes once the second date is selected', async () => {
+      const wrapper = await openPicker({ autoClose: true })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 15)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(false)
+      expect(wrapper.emitted('update')).toHaveLength(2)
+      expect(wrapper.emitted('confirm')).toEqual([[{ start: '2026/05/12', end: '2026/05/15' }]])
+      // emitted() also lists the native click that bubbles to the root element
+      expect(Object.keys(wrapper.emitted()).filter(name => name !== 'click')).toEqual(['open', 'update', 'confirm'])
+      expect(input(wrapper).element.value).toBe('2026/05/12 ~ 2026/05/15')
+    })
+
+    it('also closes when the second click is before the start date', async () => {
+      const wrapper = await openPicker({ autoClose: true })
+      await clickDay(wrapper, 15)
+      await clickDay(wrapper, 12)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(false)
+      expect(wrapper.emitted('confirm')).toEqual([[{ start: '2026/05/12', end: '2026/05/15' }]])
+    })
+
+    it('stays open when the second click is rejected', async () => {
+      const wrapper = await openPicker({ autoClose: true, minNight: 3, disabledDates: ['2026/05/20'] })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 13)
+      await clickDay(wrapper, 22)
+      await clickDay(wrapper, 12)
+      expect(wrapper.emitted('error')).toHaveLength(2)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(true)
+      expect(wrapper.emitted('confirm')).toBeUndefined()
+    })
+
+    it('reopened on a complete range: the first click starts a new range, the second closes', async () => {
+      const wrapper = await openPicker({ autoClose: true, startDate: d(2026, 5, 12), endDate: d(2026, 5, 15) })
+      await clickDay(wrapper, 20)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(true)
+      await clickDay(wrapper, 23)
+      expect(wrapper.find('.vhd-picker').exists()).toBe(false)
+      expect(wrapper.emitted('confirm')).toEqual([[{ start: '2026/05/20', end: '2026/05/23' }]])
+    })
+
+    it('does not emit close, like the confirm button', async () => {
+      const wrapper = await openPicker({ autoClose: true })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 15)
+      expect(wrapper.emitted('close')).toBeUndefined()
+    })
+  })
+
   describe('startDate / endDate changes (calendars sharing state)', () => {
     it('follows a new range from the parent without emitting update', async () => {
       const wrapper = await openPicker()

@@ -50,6 +50,25 @@
       <p v-if="selection2.start">Selected for Modal 2: {{ selection2.startFormatted }} to {{ selection2.endFormatted }}</p>
     </div>
 
+    <hr style="margin: 20px 0;">
+
+    <div>
+      <h3>Modal 3: <code>:autoClose="true"</code> applies as soon as the second date is selected</h3>
+      <button class="btn" @click="toggleModal3">Toggle Modal 3</button>
+      <VueHotelDatepickerModal
+        :active="activeModal3"
+        @apply="result => handleApply(result, 3)"
+        @cancel="() => handleCancel(3)"
+        @reset-selection="() => handleReset(3)"
+        @error="handleError"
+        :autoClose="true"
+        :startDate="selection3.start"
+        :endDate="selection3.end"
+        message="Modal 3 closes on the second date, without the Apply button."
+      />
+      <p v-if="selection3.start">Selected for Modal 3: {{ selection3.startFormatted }} to {{ selection3.endFormatted }}</p>
+    </div>
+
     <div v-if="errorMessage" style="color: red; margin-top: 10px;">
       Error: {{ errorMessage }}
     </div>
@@ -68,9 +87,11 @@ export default {
     return {
       activeModal1: false,
       activeModal2: false,
+      activeModal3: false,
       disabledDatesForModal2: [],
       selection1: { start: null, end: null, startFormatted: '', endFormatted: '' },
       selection2: { start: null, end: null, startFormatted: '', endFormatted: '' },
+      selection3: { start: null, end: null, startFormatted: '', endFormatted: '' },
 
       initialStartDateForModal1: null,
       initialEndDateForModal1: null,
@@ -114,6 +135,10 @@ export default {
       if (this.activeModal2) this.activeModal1 = false
       this.errorMessage = ''
     },
+    toggleModal3 () {
+      this.activeModal3 = !this.activeModal3
+      this.errorMessage = ''
+    },
     handleApply (result, modalNumber) {
       console.log(`Apply from Modal ${modalNumber}:`, result)
       if (modalNumber === 1) {
@@ -122,6 +147,9 @@ export default {
       } else if (modalNumber === 2) {
         this.selection2 = result
         this.activeModal2 = false
+      } else if (modalNumber === 3) {
+        this.selection3 = result
+        this.activeModal3 = false
       }
       this.errorMessage = ''
     },
@@ -131,6 +159,8 @@ export default {
         this.activeModal1 = false
       } else if (modalNumber === 2) {
         this.activeModal2 = false
+      } else if (modalNumber === 3) {
+        this.activeModal3 = false
       }
       this.errorMessage = ''
     },
@@ -140,6 +170,8 @@ export default {
         this.selection1 = { start: null, end: null, startFormatted: '', endFormatted: '' }
       } else if (modalNumber === 2) {
         this.selection2 = { start: null, end: null, startFormatted: '', endFormatted: '' }
+      } else if (modalNumber === 3) {
+        this.selection3 = { start: null, end: null, startFormatted: '', endFormatted: '' }
       }
       this.errorMessage = ''
     },

@@ -116,6 +116,71 @@ describe('VueHotelDatepickerModal', () => {
     })
   })
 
+  describe('autoClose', () => {
+    it('is off by default: completing the range does not apply it', async () => {
+      const wrapper = await openModal()
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 15)
+      expect(wrapper.emitted('apply')).toBeUndefined()
+    })
+
+    it('does not apply after the first date', async () => {
+      const wrapper = await openModal({ autoClose: true })
+      await clickDay(wrapper, 12)
+      expect(wrapper.emitted('apply')).toBeUndefined()
+      expect(wrapper.emitted('error')).toBeUndefined()
+    })
+
+    it('emits update-selection, then apply, once the second date is selected', async () => {
+      const wrapper = await openModal({ autoClose: true, format: 'DD.MM.YYYY' })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 15)
+      expect(wrapper.emitted('update-selection')).toHaveLength(2)
+      expect(wrapper.emitted('apply')).toEqual([[{
+        start: d(2026, 5, 12),
+        end: d(2026, 5, 15),
+        startFormatted: '12.05.2026',
+        endFormatted: '15.05.2026'
+      }]])
+      const names = Object.keys(wrapper.emitted()).filter(name => name !== 'click')
+      expect(names).toEqual(['update-selection', 'apply'])
+    })
+
+    it('also applies when the second click is before the start date', async () => {
+      const wrapper = await openModal({ autoClose: true })
+      await clickDay(wrapper, 15)
+      await clickDay(wrapper, 12)
+      expect(last(wrapper.emitted('apply'))[0].startFormatted).toBe('2026/05/12')
+      expect(last(wrapper.emitted('apply'))[0].endFormatted).toBe('2026/05/15')
+    })
+
+    it('does not apply when the second click is rejected', async () => {
+      const wrapper = await openModal({ autoClose: true, minNight: 3 })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 13)
+      expect(wrapper.emitted('error')).toEqual([['Minimum stay is 3 nights.']])
+      expect(wrapper.emitted('apply')).toBeUndefined()
+    })
+
+    it('leaves closing to the parent, which still owns `active`', async () => {
+      const wrapper = await openModal({ autoClose: true })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 15)
+      expect(wrapper.find('.date-range-picker-modal').exists()).toBe(true)
+      expect(wrapper.emitted('cancel')).toBeUndefined()
+    })
+
+    it('opened on a complete range: the first click starts a new range, the second applies', async () => {
+      const wrapper = await openModal({ autoClose: true, startDate: d(2026, 5, 12), endDate: d(2026, 5, 15) })
+      expect(wrapper.emitted('apply')).toBeUndefined()
+      await clickDay(wrapper, 20)
+      expect(wrapper.emitted('apply')).toBeUndefined()
+      await clickDay(wrapper, 23)
+      expect(wrapper.emitted('apply')).toHaveLength(1)
+      expect(last(wrapper.emitted('apply'))[0].startFormatted).toBe('2026/05/20')
+    })
+  })
+
   describe('update-selection', () => {
     it('emits Date objects, end is null until the range is complete', async () => {
       const wrapper = await openModal()

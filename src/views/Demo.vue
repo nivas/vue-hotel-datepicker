@@ -81,7 +81,14 @@
     </div>
     <div class="demo-example">
       <p>
-        14. Two datepickers sharing state: both get the same <code>startDate</code> / <code>endDate</code> and write to it on <code>update</code>.
+        14. <code>:autoClose="true"</code>: the picker confirms and closes as soon as the second date is selected.
+        Last <code>confirm</code>: <code>{{ autoCloseResult ? JSON.stringify(autoCloseResult) : '–' }}</code>
+      </p>
+      <VueHotelDatepicker :autoClose="true" @confirm="autoCloseResult = $event" />
+    </div>
+    <div class="demo-example">
+      <p>
+        15. Two datepickers sharing state: both get the same <code>startDate</code> / <code>endDate</code> and write to it on <code>update</code>.
         Select in one, the other follows.
         Shared range: <code>{{ shared.start || '–' }}</code> <code>{{ shared.end || '–' }}</code>
       </p>
@@ -94,7 +101,7 @@
     <h2>Disabled dates</h2>
     <div class="demo-example">
       <p>
-        15. Disabled dates
+        16. Disabled dates
         <span v-for="(date, index) in disabledDates" :key="index">
           <code>{{ date }}</code><span v-if="index !== disabledDates.length - 1">, </span>
         </span>
@@ -106,12 +113,12 @@
       <VueHotelDatepicker :disabledDates="disabledDates" />
     </div>
     <div class="demo-example">
-      <p>16. The same dates with <code>:useDiagonalStartEnd="true"</code>: start, end and the selectable disabled day are drawn as half days</p>
+      <p>17. The same dates with <code>:useDiagonalStartEnd="true"</code>: start, end and the selectable disabled day are drawn as half days</p>
       <VueHotelDatepicker :disabledDates="disabledDates" :useDiagonalStartEnd="true" format="DD.MM.YYYY" />
     </div>
     <div class="demo-example">
       <p>
-        17. Disabled dates that change while a range is selected. The range
+        18. Disabled dates that change while a range is selected. The range
         <code>{{ displayDateText(invalidation.start) }}</code> &ndash; <code>{{ displayDateText(invalidation.end) }}</code>
         is reset and <code>selection-invalidated</code> is emitted when a date inside it becomes disabled.
       </p>
@@ -154,6 +161,7 @@ export default {
       disabledDates: [],
       eventDisabledDates: [],
       eventLog: [],
+      autoCloseResult: null,
       shared: { start: undefined, end: undefined },
       invalidation: { key: 0, start: undefined, end: undefined, inside: undefined, disabledDates: [], event: null }
     }

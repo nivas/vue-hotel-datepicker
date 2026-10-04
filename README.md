@@ -12,7 +12,7 @@ A pure [Vue 3](https://vuejs.org/) date range picker component without any other
 
 The props, events, markup and class names of 3.x are the same as in 2.3.x, so moving a Vue 2 project to Vue 3 does not require template or CSS changes for this component.
 
-This project started as a fork of [northwalker/vue-hotel-datepicker](https://github.com/northwalker/vue-hotel-datepicker) (archived, Vue 2 only).
+Made and maintained by [NIVAS](https://www.nivas.hr), the digital agency behind the booking sites this datepicker runs on. It started as a fork of [northwalker/vue-hotel-datepicker](https://github.com/northwalker/vue-hotel-datepicker) (archived, Vue 2 only).
 
 ### Desktop capture preview
 <img style="border-radius: 6px; box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);" src="https://raw.githubusercontent.com/nivas/vue-hotel-datepicker/master/demo_vue_hotel_picker_desktop.png" />

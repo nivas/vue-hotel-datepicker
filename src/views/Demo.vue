@@ -109,6 +109,7 @@
       <p>
         A range cannot start on a disabled date or span one. It can end on the first disabled date after its start:
         the guest checks out on the day the next guest arrives. Select a start date and that day gets a dashed border.
+        Free days behind a disabled date are dimmed while you pick the end date; a click on one moves the start there.
       </p>
       <VueHotelDatepicker :disabledDates="disabledDates" />
     </div>
@@ -140,22 +141,31 @@
       </ul>
     </div>
 
+    <div class="demo-example">
+      <p>
+        19. <code>:showHalfDays="true"</code> shows, before any click, which days are only half usable: the first day of an
+        occupied block is check-out only, the first free day after it is arrival only. A legend explains the day states.
+      </p>
+      <VueHotelDatepicker :disabledDates="soldOutDates" :useDiagonalStartEnd="true" :showHalfDays="true" :legend="priceLegend" />
+    </div>
+
     <h2>Day prices</h2>
     <div class="demo-example">
       <p>
-        19. A price under every day with the <code>prices</code> prop: an object keyed by ISO date, for example
+        20. A price under every day with the <code>prices</code> prop: an object keyed by ISO date, for example
         <code>{ '{{ priceSampleKey }}': {{ dayPrices[priceSampleKey] }} }</code>. Days without an entry (here the sold-out ones) stay empty.
         The <code>legend</code> prop adds labelled swatches drawn like the day states, and <code>message</code> the footnote.
       </p>
       <VueHotelDatepicker :prices="dayPrices" :disabledDates="soldOutDates" :useDiagonalStartEnd="true"
-        :legend="priceLegend" message="* The calendar shows the lowest price per night, in EUR." />
+        :showHalfDays="true" :legend="priceLegend" message="* The calendar shows the lowest price per night, in EUR." />
     </div>
     <div class="demo-example">
       <p>
-        20. The <code>#day</code> slot replaces the default price. It receives <code>date</code>, <code>isoDate</code> and
+        21. The <code>#day</code> slot replaces the default price. It receives <code>date</code>, <code>isoDate</code> and
         <code>price</code>, so the page decides how a day looks. Here the cheapest nights (up to {{ lowPrice }} €) are highlighted.
       </p>
-      <VueHotelDatepicker :prices="dayPrices" :disabledDates="soldOutDates" :useDiagonalStartEnd="true" :legend="priceLegend">
+      <VueHotelDatepicker :prices="dayPrices" :disabledDates="soldOutDates" :useDiagonalStartEnd="true"
+        :showHalfDays="true" :legend="priceLegend">
         <template #day="{ price }">
           <small v-if="price !== undefined" class="demo-price" :class="{ 'demo-price-low': price <= lowPrice }">{{ price }} €</small>
         </template>
@@ -194,7 +204,8 @@ export default {
         { type: 'arrival', label: 'Arrival' },
         { type: 'departure', label: 'Departure' },
         { type: 'occupied', label: 'Occupied' },
-        { type: 'checkout', label: 'Check-out only' }
+        { type: 'checkout', label: 'Check-out only' },
+        { type: 'checkin', label: 'Arrival only' }
       ],
       shared: { start: undefined, end: undefined },
       invalidation: { key: 0, start: undefined, end: undefined, inside: undefined, disabledDates: [], event: null }

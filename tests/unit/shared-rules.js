@@ -317,11 +317,9 @@ export function sharedRules ({ open, selections }) {
       expect(classes(wrapper, 14)).toContain('selectable-disabled')
       expect(classes(wrapper, 14)).not.toContain('disabled')
       expect(classes(wrapper, 14)).not.toContain('forbidden')
-      // everything behind the first disabled date is out of reach
+      // occupied days behind the first disabled date stay out of reach
       expect(classes(wrapper, 15)).toContain('disabled')
       expect(classes(wrapper, 15)).toContain('forbidden')
-      expect(classes(wrapper, 16)).toContain('disabled')
-      expect(classes(wrapper, 16)).not.toContain('forbidden')
     })
 
     it('allows ending the range on that disabled date', async () => {
@@ -349,10 +347,10 @@ export function sharedRules ({ open, selections }) {
       expect(classes(wrapper, 15)).not.toContain('selectable-disabled')
     })
 
-    it('rejects a range that spans a disabled date with an error', async () => {
+    it('rejects an occupied day behind the first disabled date with an error', async () => {
       const wrapper = await open({ disabledDates })
       await clickDay(wrapper, 12)
-      await clickDay(wrapper, 16)
+      await clickDay(wrapper, 15)
       expect(errors(wrapper)).toEqual(['Range includes a disabled date.'])
       expect(selections(wrapper)).toHaveLength(1)
       // still waiting for a valid end date
@@ -365,14 +363,6 @@ export function sharedRules ({ open, selections }) {
       await clickDay(wrapper, 17)
       await clickDay(wrapper, 15)
       expect(errors(wrapper)).toEqual([])
-      expect(selections(wrapper)).toHaveLength(1)
-    })
-
-    it('rejects a backwards range that spans a disabled date', async () => {
-      const wrapper = await open({ disabledDates })
-      await clickDay(wrapper, 22)
-      await clickDay(wrapper, 18)
-      expect(errors(wrapper)).toEqual(['Range includes a disabled date.'])
       expect(selections(wrapper)).toHaveLength(1)
     })
 
@@ -415,6 +405,88 @@ export function sharedRules ({ open, selections }) {
       expect(classes(wrapper, 12)).toContain('start-date')
       expect(classes(wrapper, 15)).toContain('end-date')
       expect(classes(wrapper, 20)).toContain('forbidden')
+    })
+  })
+
+  describe('changing the start date while picking the end date', () => {
+    const disabledDates = ['2026/05/14', '2026/05/15', '2026/05/20']
+
+    it('keeps free days behind a disabled date clickable, marked as a new start', async () => {
+      const wrapper = await open({ disabledDates })
+      await clickDay(wrapper, 12)
+      for (const n of [16, 17, 18, 19, 21, 22]) {
+        expect(classes(wrapper, n)).toContain('selectable-restart')
+        expect(classes(wrapper, n)).not.toContain('disabled')
+      }
+      // days that can end this stay are not marked
+      expect(classes(wrapper, 13)).not.toContain('selectable-restart')
+      expect(classes(wrapper, 14)).not.toContain('selectable-restart')
+      // occupied days are never a new start
+      expect(classes(wrapper, 15)).not.toContain('selectable-restart')
+      expect(classes(wrapper, 20)).not.toContain('selectable-restart')
+    })
+
+    it('a click on such a day moves the start there instead of doing nothing', async () => {
+      const wrapper = await open({ disabledDates })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 17)
+      expect(errors(wrapper)).toEqual([])
+      expect(selections(wrapper)).toEqual([
+        { start: '2026/05/12', end: null },
+        { start: '2026/05/17', end: null }
+      ])
+      expect(classes(wrapper, 17)).toContain('start-date')
+      expect(classes(wrapper, 12)).not.toContain('start-date')
+      await clickDay(wrapper, 19)
+      expect(lastSelection(wrapper)).toEqual({ start: '2026/05/17', end: '2026/05/19' })
+    })
+
+    it('works backwards across a disabled date too', async () => {
+      const wrapper = await open({ disabledDates })
+      await clickDay(wrapper, 22)
+      expect(classes(wrapper, 18)).toContain('selectable-restart')
+      await clickDay(wrapper, 18)
+      expect(errors(wrapper)).toEqual([])
+      expect(lastSelection(wrapper)).toEqual({ start: '2026/05/18', end: null })
+    })
+
+    it('also across months', async () => {
+      const wrapper = await open({ disabledDates })
+      await clickDay(wrapper, 12)
+      expect(classes(wrapper, 3, 'right')).toContain('selectable-restart')
+      await clickDay(wrapper, 3, 'right')
+      expect(lastSelection(wrapper)).toEqual({ start: '2026/06/03', end: null })
+    })
+
+    it('does not mark days before minDate or after maxDate', async () => {
+      const wrapper = await open({ disabledDates: ['2026/05/14'], maxDate: d(2026, 5, 20) })
+      await clickDay(wrapper, 16)
+      expect(classes(wrapper, 5)).not.toContain('selectable-restart')
+      expect(classes(wrapper, 5)).toContain('disabled')
+      expect(classes(wrapper, 25)).not.toContain('selectable-restart')
+      expect(classes(wrapper, 12)).toContain('selectable-restart')
+    })
+
+    it('leaves the night limits as they were: too close or too far is still an error', async () => {
+      const wrapper = await open({ minNight: 3, maxNight: 5 })
+      await clickDay(wrapper, 12)
+      expect(classes(wrapper, 13)).toContain('disabled')
+      expect(classes(wrapper, 13)).not.toContain('selectable-restart')
+      expect(classes(wrapper, 20)).toContain('disabled')
+      await clickDay(wrapper, 20)
+      expect(errors(wrapper)).toEqual(['Maximum stay is 5 nights.'])
+      expect(selections(wrapper)).toHaveLength(1)
+    })
+
+    it('has no such days without disabled dates or once the range is complete', async () => {
+      const plain = await open()
+      await clickDay(plain, 12)
+      expect(plain.findAll('.day.selectable-restart')).toHaveLength(0)
+
+      const wrapper = await open({ disabledDates })
+      await clickDay(wrapper, 12)
+      await clickDay(wrapper, 13)
+      expect(wrapper.findAll('.day.selectable-restart')).toHaveLength(0)
     })
   })
 

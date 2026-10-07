@@ -196,13 +196,13 @@ describe('VueHotelDatepicker', () => {
       expect(wrapper.emitted('confirm')).toEqual([[{ start: '2026/05/12', end: '2026/05/15' }]])
     })
 
-    it('stays open when the second click is rejected', async () => {
+    it('stays open when the second click is rejected or moves the start date', async () => {
       const wrapper = await openPicker({ autoClose: true, minNight: 3, disabledDates: ['2026/05/20'] })
       await clickDay(wrapper, 12)
-      await clickDay(wrapper, 13)
-      await clickDay(wrapper, 22)
-      await clickDay(wrapper, 12)
-      expect(wrapper.emitted('error')).toHaveLength(2)
+      await clickDay(wrapper, 13) // too close: rejected
+      expect(wrapper.emitted('error')).toHaveLength(1)
+      await clickDay(wrapper, 22) // behind a disabled date: new start
+      expect(last(wrapper.emitted('update'))).toEqual([{ start: '2026/05/22', end: null }])
       expect(wrapper.find('.vhd-picker').exists()).toBe(true)
       expect(wrapper.emitted('confirm')).toBeUndefined()
     })

@@ -14,6 +14,9 @@ The props, events, markup and class names of 3.x are the same as in 2.3.x, so mo
 
 Made and maintained by [NIVAS](https://www.nivas.hr), the digital agency behind the booking sites this datepicker runs on. It started as a fork of [northwalker/vue-hotel-datepicker](https://github.com/northwalker/vue-hotel-datepicker) (archived, Vue 2 only).
 
+### Live demo
+[https://nivas.github.io/vue-hotel-datepicker/](https://nivas.github.io/vue-hotel-datepicker/)
+
 ### Desktop capture preview
 <img style="border-radius: 6px; box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.27);" src="https://raw.githubusercontent.com/nivas/vue-hotel-datepicker/master/demo_vue_hotel_picker_desktop.png" />
 
@@ -98,12 +101,13 @@ Props shared by both components:
 | `minNight` | `Number` | `undefined` | Minimum number of nights. |
 | `maxNight` | `Number` | `undefined` | Maximum number of nights. |
 | `selectForward` | `Boolean` | `true` | If `true`, the calendar cannot be browsed to months before `minDate`. |
-| `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings (`'2026-01-25'`, `'2026/01/25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
+| `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings (`'2026-01-25'`, `'2026/01/25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). While the end date is being picked, free days behind a disabled date are dimmed (`selectable-restart`) and a click on one starts a new selection there. If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
 | `useDiagonalStartEnd` | `Boolean` | `false` | Draw start, end and selectable disabled days as diagonal halves (`start-date-diagonal`, `end-date-diagonal`, `selectable-disabled-diagonal` classes instead of `start-date`, `end-date`, `selectable-disabled`). |
 | `resetMonthOnOpen` | `Boolean` | `false` | When opened, jump back to the month of the selection (or of `minDate`) instead of staying on the last browsed month. |
 | `autoClose` | `Boolean` | `false` | Finish as soon as the second date is selected, without a click on the confirm / apply button. `VueHotelDatepicker` emits `update`, then `confirm`, and closes. `VueHotelDatepickerModal` emits `update-selection`, then `apply`; the parent closes it in its `apply` handler as usual. |
 | `prices` | `Object` | `{}` | Content shown under the day number, keyed by ISO date: `{ '2026-01-25': 89, '2026-01-26': '95 €' }`. Values are displayed as given (format them in the parent); days without an entry, or with `null` / `''`, show nothing. With prices the day cells get taller. |
-| `legend` | `Array` | `[]` | Legend shown under the calendar, above `message`: `[{ type: 'available', label: 'Available' }, …]`. Each item is a swatch drawn like the day state it explains, plus your label. Types: `available`, `arrival` (start day), `departure` (end day), `occupied` (disabled day), `checkout` (disabled day a range can end on). Any other `type` becomes the class `vhd-legend-<type>` for your own styling. With `useDiagonalStartEnd` the swatches are drawn as half days. |
+| `legend` | `Array` | `[]` | Legend shown under the calendar, above `message`: `[{ type: 'available', label: 'Available' }, …]`. Each item is a swatch drawn like the day state it explains, plus your label. Types: `available`, `arrival` (start day), `departure` (end day), `occupied` (disabled day), `checkout` (check-out only half day), `checkin` (arrival only half day). Any other `type` becomes the class `vhd-legend-<type>` for your own styling. With `useDiagonalStartEnd` the arrival and departure swatches are drawn as half days. |
+| `showHalfDays` | `Boolean` | `false` | Show, before any click, which days around an occupied block are only half usable. The first disabled day of a block is check-out only (`half-day-checkout`): a stay can end there but not start. The first free day after a block is arrival only (`half-day-arrival`): a stay can start there but not end. The other disabled days are filled (`full-day-occupied`). Works from `disabledDates` alone; looks best with `useDiagonalStartEnd`. |
 | `weekList` | `Array` | `['Sun.', 'Mon.', 'Tue.', 'Wen.', 'Thu.', 'Fri.', 'Sat.']` | Week day labels, Sunday first. |
 | `monthList` | `Array` | `['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct', 'Nov.', 'Dec.']` | Month labels. |
 | `fromText` | `String` | `'From'` | Label of the start date. |
@@ -164,7 +168,7 @@ The default price element has the class `vhd-day-price`. The picker gets the cla
 | `beforeopen` | – | The input got focus, before the picker opens. |
 | `open` | – | The picker opened. |
 | `close` | – | The picker was closed with the close icon, the input or `close()`. |
-| `error` | message `String` | A click was rejected: the range spans a disabled date or violates `minNight` / `maxNight`. |
+| `error` | message `String` | A click was rejected: it violates `minNight` / `maxNight`, or it is on an occupied day behind another disabled date. |
 | `selection-invalidated` | `{ start: null, end: null }` | New `disabledDates` collide with the current selection, which was reset. |
 
 `VueHotelDatepickerModal`:

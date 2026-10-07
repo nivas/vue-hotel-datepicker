@@ -210,6 +210,11 @@ export default {
     legend: {
       type: Array,
       default: () => []
+    },
+    // Draw check-out only, arrival only and fully occupied days as such before any click
+    showHalfDays: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -637,8 +642,16 @@ export default {
             if (this.maxNight && nights > this.maxNight) violatesNights = true
           }
 
-          if (time !== startTime && (violatesNights || interveningDisabledCheck)) {
-            isGenerallyDisabled = true
+          // A free day behind a disabled date cannot end this stay, but a click on it starts a new one
+          // (see dayOnClick), so it stays clickable instead of being disabled.
+          const canRestartHere = interveningDisabledCheck && !isDisabledByProp && !isBaseDisabled
+
+          if (time !== startTime) {
+            if (canRestartHere) {
+              classList.push('selectable-restart')
+            } else if (violatesNights || interveningDisabledCheck) {
+              isGenerallyDisabled = true
+            }
           }
 
           // Apply 'selectable-disabled' for dates that are in disabledDates prop but might be selectable as an end date
@@ -657,6 +670,20 @@ export default {
             if (!interveningDisabledOnClick) {
               classList.push(selectableDisabledClassName)
             }
+          }
+        }
+
+        // showHalfDays: mark, before any click, the days around an occupied block that are only half usable
+        if (this.showHalfDays && !isBaseDisabled) {
+          const previousDay = new Date(datetime.getFullYear(), datetime.getMonth(), datetime.getDate() - 1).getTime()
+          const previousDayDisabled = this.disabledDateTimestamps.includes(previousDay)
+          const previousDaySelectable = !(this.selectMinDate && previousDay < this.selectMinDate.getTime())
+          if (isDisabledByProp) {
+            // a stay can end on the first occupied day of a block, if it could start the day before
+            classList.push(!previousDayDisabled && previousDaySelectable ? 'half-day-checkout' : 'full-day-occupied')
+          } else if (previousDayDisabled) {
+            // the first free day after a block: a stay can start here but not end here
+            classList.push('half-day-arrival')
           }
         }
 
@@ -767,6 +794,15 @@ export default {
         })
 
         if (interveningDisabled) {
+          // The clicked day cannot complete this stay. If it is free itself, the guest changed their
+          // mind about the arrival day: start a new selection there instead of ignoring the click.
+          if (!isClickedDateItselfDisabledByProp) {
+            this.selectStartDate = datetime
+            this.selectEndDate = null
+            this.updateValue()
+            this.$emit('update', { start: clickedDateStr, end: null })
+            return
+          }
           this.$emit('error', 'Range includes a disabled date.')
           return
         }
@@ -1124,6 +1160,62 @@ svg {
               pointer-events: none;
             }
 
+            // A free day that cannot end the current stay: dimmed, but a click starts a new selection there
+            &.selectable-restart {
+              color: #b4b4b4;
+            }
+
+            // showHalfDays: an occupied block is drawn as a band whose first and last day are half days
+            &.full-day-occupied.forbidden {
+              color: #e6a9a7;
+              background-color: #ffe7e7;
+            }
+
+            &.half-day-checkout,
+            &.half-day-arrival:not(.start-date) {
+              position: relative;
+              overflow: hidden;
+
+              &::before {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                opacity: 1;
+                z-index: 0;
+                background-color: #ffe7e7;
+                transition: none;
+              }
+
+              span {
+                position: relative;
+                z-index: 1;
+              }
+            }
+
+            // check-out only: the evening half (top right) is taken
+            &.half-day-checkout::before {
+              clip-path: polygon(100% 0, 100% 100%, 0 0);
+            }
+
+            &.half-day-checkout.disabled {
+              color: #a94442;
+            }
+
+            // arrival only: the morning half (top left) is taken
+            &.half-day-arrival:not(.start-date)::before {
+              clip-path: polygon(0 0, 100% 0, 0 100%);
+            }
+
+            // the taken half stays visible next to the half of the selected stay
+            &.half-day-arrival.start-date-diagonal::before,
+            &.half-day-checkout.end-date-diagonal::before,
+            &.half-day-checkout.selectable-disabled-diagonal::before {
+              background-color: #ffe7e7;
+            }
+
             &.selectable-disabled {
               // background-color: #ffe7e7;
               border: 1px dashed #e57373;
@@ -1307,6 +1399,14 @@ svg {
   }
 }
 
+// Message area: a neutral note under the calendar (a footnote for prices, a hint for the guest)
+.vhd-calendar-message {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #7d7d7d;
+}
+
 // Legend: swatches drawn like the day states they explain
 .vhd-calendar-legend {
   display: flex;
@@ -1360,16 +1460,19 @@ svg {
 
   &-occupied {
     border-color: #fed9d8;
-    background: #fed9d8;
+    background: #ffe7e7;
   }
 
-  &-checkout {
-    border: 1px dashed #e57373;
-    background: #ffe7e7;
+  // arrival only: the half day at the end of an occupied block (showHalfDays)
+  &-checkin {
+    border-color: #fed9d8;
+    background: linear-gradient(to bottom right, #ffe7e7 50%, #ffffff 50%);
+  }
 
-    &.diagonal {
-      background: linear-gradient(to top right, #ffffff 50%, #ffe7e7 50%);
-    }
+  // check-out only: the half day at the start of an occupied block
+  &-checkout {
+    border-color: #fed9d8;
+    background: linear-gradient(to top right, #ffffff 50%, #ffe7e7 50%);
   }
 }
 

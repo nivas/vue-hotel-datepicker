@@ -72,7 +72,7 @@
     <hr style="margin: 20px 0;">
 
     <div>
-      <h3>Modal 4: Day prices and a legend (<code>prices</code>, <code>legend</code>), localized</h3>
+      <h3>Modal 4: Day prices, half days and a legend (<code>prices</code>, <code>showHalfDays</code>, <code>legend</code>), localized</h3>
       <button class="btn" @click="toggleModal4">Toggle Modal 4</button>
       <VueHotelDatepickerModal
         :active="activeModal4"
@@ -86,8 +86,11 @@
           { type: 'available', label: 'Dostupno' },
           { type: 'arrival', label: 'Dolazak' },
           { type: 'departure', label: 'Odlazak' },
-          { type: 'occupied', label: 'Zauzeto' }
+          { type: 'occupied', label: 'Zauzeto' },
+          { type: 'checkout', label: 'Samo odlazak' },
+          { type: 'checkin', label: 'Samo dolazak' }
         ]"
+        :showHalfDays="true"
         :disabledDates="disabledDatesForModal2"
         :startDate="selection4.start"
         :endDate="selection4.end"

@@ -10,7 +10,7 @@ A pure [Vue 3](https://vuejs.org/) date range picker component without any other
 | 3.x | Vue 3 | `master` | `npm install @nivashr/vue-hotel-datepicker` |
 | 2.x | Vue 2 | `v2` | `npm install @nivashr/vue-hotel-datepicker@2` |
 
-The props, events, markup and class names of 3.x are the same as in 2.3.x, so moving a Vue 2 project to Vue 3 does not require template or CSS changes for this component.
+The props, events and CSS selectors of 2.3.x are all kept in 3.x, so moving a Vue 2 project to Vue 3 does not require template or CSS changes for this component. 3.1 adds day prices, a legend and half days, and changes two defaults: clicking a free day behind a disabled date and the look of `message`. See the [changelog](CHANGELOG.md).
 
 Made and maintained by [NIVAS](https://www.nivas.hr), the digital agency behind the booking sites this datepicker runs on. It started as a fork of [northwalker/vue-hotel-datepicker](https://github.com/northwalker/vue-hotel-datepicker) (archived, Vue 2 only).
 
@@ -101,7 +101,7 @@ Props shared by both components:
 | `minNight` | `Number` | `undefined` | Minimum number of nights. |
 | `maxNight` | `Number` | `undefined` | Maximum number of nights. |
 | `selectForward` | `Boolean` | `true` | If `true`, the calendar cannot be browsed to months before `minDate`. |
-| `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings (`'2026-01-25'`, `'2026/01/25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). While the end date is being picked, free days behind a disabled date are dimmed (`selectable-restart`) and a click on one starts a new selection there. If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
+| `disabledDates` | `Array` | `[]` | Dates that cannot be selected, as `Date` objects or strings (`'2026-01-25'`, `'2026/01/25'`); they do **not** follow `format`. A range cannot start on or span a disabled date, but it can end on the first disabled date after its start (check-out on the day the next guest arrives). While the end date is being picked, free days behind a disabled date are dimmed (`selectable-restart`) and a click on one starts a new selection there (since 3.1, always on). If a change of this prop makes the current selection invalid, the selection is reset and `selection-invalidated` is emitted. |
 | `useDiagonalStartEnd` | `Boolean` | `false` | Draw start, end and selectable disabled days as diagonal halves (`start-date-diagonal`, `end-date-diagonal`, `selectable-disabled-diagonal` classes instead of `start-date`, `end-date`, `selectable-disabled`). |
 | `resetMonthOnOpen` | `Boolean` | `false` | When opened, jump back to the month of the selection (or of `minDate`) instead of staying on the last browsed month. |
 | `autoClose` | `Boolean` | `false` | Finish as soon as the second date is selected, without a click on the confirm / apply button. `VueHotelDatepicker` emits `update`, then `confirm`, and closes. `VueHotelDatepickerModal` emits `update-selection`, then `apply`; the parent closes it in its `apply` handler as usual. |
@@ -114,7 +114,7 @@ Props shared by both components:
 | `toText` | `String` | `'To'` | Label of the end date. |
 | `resetText` | `String` | `'Reset'` | Text of the reset button. |
 | `mobile` | `String` | `''` | `'mobile'`, `'desktop'` or `''`. Forces the mobile or desktop layout; by default it depends on the browser width. |
-| `message` | `String` | `''` | Custom text displayed inside the picker. |
+| `message` | `String` | `''` | Note under the calendar and legend, in small grey text (`.vhd-calendar-message`), e.g. a footnote for prices. |
 
 `VueHotelDatepicker` only:
 

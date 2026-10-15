@@ -176,7 +176,7 @@
 </template>
 
 <script>
-import VueHotelDatepicker from '@/components/VueHotelDatepicker.vue'
+import VueHotelDatepicker from './demoPicker.js'
 
 const DAY = 1000 * 60 * 60 * 24
 

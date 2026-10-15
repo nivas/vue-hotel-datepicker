@@ -8,7 +8,7 @@ New features are opt-in. All props, events and CSS selectors of 3.0.0 still exis
 
 ### Added
 
-- `prices` prop: content under the day number, keyed by ISO date (`{ '2026-01-25': 89 }`). Values are shown as given, so the parent formats them (currency, rounding). With prices the day cells grow from 40 to 54px (`vhd-has-day-content` on the picker, `vhd-day-price` on the default price element).
+- `prices` prop: content under the day number, keyed by ISO date (`{ '2026-01-25': 89 }`). Values are shown as given, so the parent formats them (currency, rounding); a value wider than its cell ends in an ellipsis. With prices the day cells grow from 40 to 54px (`vhd-has-day-content` on the picker, `vhd-day-price` on the default price element).
 - `day` slot (`date`, `isoDate`, `price`) for custom content under the day number, e.g. highlighting the cheapest nights.
 - `legend` prop and `legend` slot: labelled swatches under the calendar, drawn in the calendar's own day styles. Types: `available`, `arrival`, `departure`, `occupied`, `checkout`, `checkin`; any other type becomes the class `vhd-legend-<type>`.
 - `showHalfDays` prop (default `false`): before any click, the first day of an occupied block is shown as check-out only (`half-day-checkout`), the first free day after it as arrival only (`half-day-arrival`), and the rest as filled (`full-day-occupied`). Computed from `disabledDates` alone.

@@ -1487,6 +1487,12 @@ svg {
   font-style: normal;
   line-height: 1;
   white-space: nowrap;
+  // a value wider than the cell is cut off with an ellipsis instead of spilling into the next day
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   opacity: .75;
 }
 

@@ -3,7 +3,7 @@
     <h2>Modal</h2>
     <div>
       <h3>Modal 1: Default (with initial selection)</h3>
-      <button class="btn" @click="toggleModal1">Toggle Modal 1</button>
+      <button class="btn" @click="toggleModal(1)">Toggle Modal 1</button>
       <VueHotelDatepickerModal
         :active="activeModal1"
         @apply="result => handleApply(result, 1)"
@@ -26,7 +26,7 @@
 
     <div>
       <h3>Modal 2: With Disabled Dates & Diagonal Style (no initial selection)</h3>
-      <button class="btn" @click="toggleModal2">Toggle Modal 2</button>
+      <button class="btn" @click="toggleModal(2)">Toggle Modal 2</button>
       <p>
         Disabled Dates:
         <span v-for="(date, index) in disabledDatesForModal2" :key="index">
@@ -54,7 +54,7 @@
 
     <div>
       <h3>Modal 3: <code>:autoClose="true"</code> applies as soon as the second date is selected</h3>
-      <button class="btn" @click="toggleModal3">Toggle Modal 3</button>
+      <button class="btn" @click="toggleModal(3)">Toggle Modal 3</button>
       <VueHotelDatepickerModal
         :active="activeModal3"
         @apply="result => handleApply(result, 3)"
@@ -73,7 +73,7 @@
 
     <div>
       <h3>Modal 4: Day prices, half days and a legend (<code>prices</code>, <code>showHalfDays</code>, <code>legend</code>), localized</h3>
-      <button class="btn" @click="toggleModal4">Toggle Modal 4</button>
+      <button class="btn" @click="toggleModal(4)">Toggle Modal 4</button>
       <VueHotelDatepickerModal
         :active="activeModal4"
         @apply="result => handleApply(result, 4)"
@@ -108,6 +108,7 @@
 
 <script>
 import VueHotelDatepickerModal from './../components/VueHotelDatepickerModal.vue'
+import { closeOpenPickers } from './demoPicker.js'
 
 export default {
   name: 'DemoModal',
@@ -169,22 +170,12 @@ export default {
     }
   },
   methods: {
-    toggleModal1 () {
-      this.activeModal1 = !this.activeModal1
-      if (this.activeModal1) this.activeModal2 = false
-      this.errorMessage = ''
-    },
-    toggleModal2 () {
-      this.activeModal2 = !this.activeModal2
-      if (this.activeModal2) this.activeModal1 = false
-      this.errorMessage = ''
-    },
-    toggleModal4 () {
-      this.activeModal4 = !this.activeModal4
-      this.errorMessage = ''
-    },
-    toggleModal3 () {
-      this.activeModal3 = !this.activeModal3
+    // one modal at a time, and no inline picker left open behind it
+    toggleModal (n) {
+      const opening = !this[`activeModal${n}`]
+      for (const i of [1, 2, 3, 4]) this[`activeModal${i}`] = false
+      this[`activeModal${n}`] = opening
+      if (opening) closeOpenPickers()
       this.errorMessage = ''
     },
     handleApply (result, modalNumber) {

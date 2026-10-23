@@ -2,6 +2,12 @@
 
 Releases of `@nivashr/vue-hotel-datepicker`. The 2.x line (Vue 2) lives on the [`v2`](https://github.com/nivas/vue-hotel-datepicker/tree/v2) branch and is published under the npm dist-tag `vue2`.
 
+## Unreleased
+
+### Fixed
+
+- Inline picker header: the spaces between "From", the dates and "To" are printed explicitly. The Vue 3 template compiler (`whitespace: 'condense'`) dropped them at the element edges, so the header read `From01.01.2031.To02.01.2031.` (2.x kept them).
+
 ## 3.1.0
 
 New features are opt-in. All props, events and CSS selectors of 3.0.0 still exist and mean the same thing, so site CSS keeps working. Two defaults change: the date-click rule and the look of `message` (see below).

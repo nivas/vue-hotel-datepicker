@@ -8,11 +8,12 @@
           <a class="close" @click="close">
             <IconClose />
           </a>
+          <!-- the spaces around the dates are printed explicitly: the Vue 3 template compiler (whitespace: condense) drops them at the element edges, Vue 2 kept them -->
           <span class="info">
             <span v-if="selectStartDate" class="from-text">{{ fromText }}</span>
-            <span v-if="selectStartDate" class="from-date"> {{ displayDateText(selectStartDate) }} </span>
+            <span v-if="selectStartDate" class="from-date">{{ ' ' + displayDateText(selectStartDate) + ' ' }}</span>
             <span v-if="selectEndDate" class="to-text">{{ toText }}</span>
-            <span v-if="selectEndDate" class="from-date"> {{ displayDateText(selectEndDate) }} </span>
+            <span v-if="selectEndDate" class="from-date">{{ ' ' + displayDateText(selectEndDate) + ' ' }}</span>
           </span>
         </div>
         <div class="vhd-calendar-left">

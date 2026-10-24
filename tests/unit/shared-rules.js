@@ -377,14 +377,14 @@ export function sharedRules ({ open, selections }) {
       expect(wrapper.findAll('.day.in-date-range')).toHaveLength(0)
     })
 
-    it('resets the whole selection when its end date becomes disabled', async () => {
+    it('keeps the selection when only its end date becomes disabled (check-out on the first closed day)', async () => {
       const wrapper = await open()
       await clickDay(wrapper, 12)
       await clickDay(wrapper, 15)
       await wrapper.setProps({ disabledDates: ['2026/05/15'] })
-      expect(wrapper.emitted('selection-invalidated')).toHaveLength(1)
-      expect(wrapper.findAll('.day.start-date')).toHaveLength(0)
-      expect(wrapper.findAll('.day.end-date')).toHaveLength(0)
+      expect(wrapper.emitted('selection-invalidated')).toBeUndefined()
+      expect(classes(wrapper, 12)).toContain('start-date')
+      expect(classes(wrapper, 15)).toContain('end-date')
     })
 
     it('resets the selection when a date inside it becomes disabled', async () => {

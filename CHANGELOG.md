@@ -2,7 +2,7 @@
 
 Releases of `@nivashr/vue-hotel-datepicker`. The 2.x line (Vue 2) lives on the [`v2`](https://github.com/nivas/vue-hotel-datepicker/tree/v2) branch and is published under the npm dist-tag `vue2`.
 
-## Unreleased
+## 3.1.1
 
 ### Fixed
 

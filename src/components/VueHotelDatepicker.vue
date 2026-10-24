@@ -319,19 +319,9 @@ export default {
           }
         }
 
-        // If the end date becomes disabled, we need to check if the range is still valid.
-        // A simple approach is to clear the start date end date. (previously we only cleared end date leaving calendar in semi selected state and bad UX)
-        // A more complex one would check if it was a 'selectable-disabled' case,
-        // but given the prop changed externally, resetting is safer.
-        if (this.selectEndDate && !selectionInvalidated) { // Only check if start is still valid
-          const endDateStr = this.displayDateText(this.selectEndDate)
-          if (this.formattedDisabledDates.includes(endDateStr)) {
-            console.warn('VueHotelDatepicker: Current end date became disabled. Resetting selection.')
-            this.selectStartDate = undefined
-            this.selectEndDate = undefined
-            selectionInvalidated = true
-          }
-        }
+        // An end date that is itself disabled stays valid: a stay may end on the first closed day (check-out
+        // morning) - the same rule the start/end props apply on mount and a click applies ('selectable-disabled').
+        // A closed day INSIDE the range is caught by the intervening check below.
 
         // Check for intervening disabled dates in an existing valid selection
         if (this.selectStartDate && this.selectEndDate && !selectionInvalidated) {

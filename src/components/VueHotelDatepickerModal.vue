@@ -318,15 +318,9 @@ export default {
           }
         }
 
-        if (this.selectEndDate && !selectionInvalidated) {
-          const endDateStr = this.displayDateText(this.selectEndDate)
-          if (this.formattedDisabledDates.includes(endDateStr)) {
-            console.warn('[VHD Modal] Current end date became disabled. Resetting selection.')
-            this.selectStartDate = undefined
-            this.selectEndDate = undefined
-            selectionInvalidated = true
-          }
-        }
+        // An end date that is itself disabled stays valid: a stay may end on the first closed day (check-out
+        // morning) - the same rule the start/end props apply on mount and a click applies ('selectable-disabled').
+        // A closed day INSIDE the range is caught by the intervening check below.
 
         if (this.selectStartDate && this.selectEndDate && !selectionInvalidated) {
           const start = this.selectStartDate.getTime()

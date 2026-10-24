@@ -6,6 +6,7 @@ Releases of `@nivashr/vue-hotel-datepicker`. The 2.x line (Vue 2) lives on the [
 
 ### Fixed
 
+- A selected range whose end date is a disabled day (check-out on the first closed day) is no longer reset when `disabledDates` changes afterwards, in both pickers. Mount and click already accepted such a range; only the prop watcher cleared it - a booking mask that loads a property's availability after the page has rendered lost the visitor's dates ("Current end date became disabled. Resetting selection."). A disabled day inside the range still resets it.
 - Inline picker header: the spaces between "From", the dates and "To" are printed explicitly. The Vue 3 template compiler (`whitespace: 'condense'`) dropped them at the element edges, so the header read `From01.01.2031.To02.01.2031.` (2.x kept them).
 
 ## 3.1.0

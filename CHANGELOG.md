@@ -2,7 +2,7 @@
 
 Releases of `@nivashr/vue-hotel-datepicker`. The 2.x line (Vue 2) lives on the [`v2`](https://github.com/nivas/vue-hotel-datepicker/tree/v2) branch and is published under the npm dist-tag `vue2`.
 
-## Unreleased
+## 3.1.2
 
 ### Added
 
@@ -10,7 +10,7 @@ Releases of `@nivashr/vue-hotel-datepicker`. The 2.x line (Vue 2) lives on the [
 
 ### Fixed
 
-- `showHalfDays`: the first day the picker offers (the day after `minDate`, i.e. today by default) is drawn as arrival only, like the first free day after an occupied block - a stay can start there but not end there. Until now that mark needed the day before `minDate` in `disabledDates`, which then rendered as an occupied past day.
+- `showHalfDays`: the first day the picker offers (`minDate` itself, i.e. today by default) is drawn as arrival only, like the first free day after an occupied block - a stay can start there but not end there. Until now that mark needed the day before `minDate` in `disabledDates`, which then rendered as an occupied past day.
 
 ## 3.1.1
 

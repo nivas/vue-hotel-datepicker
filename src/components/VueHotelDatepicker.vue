@@ -29,7 +29,7 @@
             <div class="calendar-month-title">
               {{ monthList[startMonthDate.getMonth()] }} {{ startMonthDate.getFullYear() }}
             </div>
-            <a class="next-arrow offset-1" @click="updateCalendar(1)">
+            <a :class="disabledNextArrow()" class="next-arrow offset-1" @click="updateCalendar(1)">
               <IconArrowForward class="arrow" />
             </a>
           </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="vhd-calendar-right">
           <div class="calendar-month">
-            <a class="next-arrow" @click="updateCalendar(2)">
+            <a :class="disabledNextArrow()" class="next-arrow" @click="updateCalendar(2)">
               <IconArrowForward class="arrow" />
             </a>
             <div class="calendar-month-title">
@@ -211,6 +211,11 @@ export default {
     legend: {
       type: Array,
       default: () => []
+    },
+    // The month arrows stop at the month of maxDate instead of paging into months with nothing to select
+    stopAtMaxDate: {
+      type: Boolean,
+      default: true
     },
     // Draw check-out only, arrival only and fully occupied days as such before any click
     showHalfDays: {
@@ -551,6 +556,17 @@ export default {
         }
       }
 
+      if (this.stopAtMaxDate && this.selectMaxDate && offset > 0) {
+        // never page past the month of maxDate: the right month may hold it, the left one the month before
+        const maxMonth = new Date(this.selectMaxDate.getFullYear(), this.selectMaxDate.getMonth(), 1)
+        const lastStart = new Date(maxMonth.getFullYear(), maxMonth.getMonth() - 1, 1)
+        if (this.startMonthDate.getTime() > lastStart.getTime()) this.startMonthDate = lastStart
+        if (this.selectMinDate && this.selectForward) {
+          const minMonth = new Date(this.selectMinDate.getFullYear(), this.selectMinDate.getMonth(), 1)
+          if (this.startMonthDate.getTime() < minMonth.getTime()) this.startMonthDate = minMonth
+        }
+      }
+
       this.endMonthDate = new Date(this.startMonthDate.getFullYear(), this.startMonthDate.getMonth() + 1)
       this.startMonthAry = this.generateCalendar(this.startMonthDate.getFullYear(), this.startMonthDate.getMonth())
       this.endMonthAry = this.generateCalendar(this.endMonthDate.getFullYear(), this.endMonthDate.getMonth())
@@ -564,6 +580,14 @@ export default {
       } else {
         this.value = ''
       }
+    },
+
+    /** The last month on screen already holds maxDate: nothing to page to (stopAtMaxDate). */
+    disabledNextArrow() {
+      if (!this.stopAtMaxDate || !this.selectMaxDate || !this.endMonthDate) return false
+      const maxMonth = new Date(this.selectMaxDate.getFullYear(), this.selectMaxDate.getMonth(), 1)
+      const lastShown = new Date(this.endMonthDate.getFullYear(), this.endMonthDate.getMonth(), 1)
+      return lastShown.getTime() >= maxMonth.getTime() ? 'disabled' : false
     },
 
     disabledPreviousArrow(monthDatetime) {
@@ -672,8 +696,9 @@ export default {
           if (isDisabledByProp) {
             // a stay can end on the first occupied day of a block, if it could start the day before
             classList.push(!previousDayDisabled && previousDaySelectable ? 'half-day-checkout' : 'full-day-occupied')
-          } else if (previousDayDisabled) {
-            // the first free day after a block: a stay can start here but not end here
+          } else if (previousDayDisabled || !previousDaySelectable) {
+            // the first free day after a block - or the first day the picker offers at all (the day
+            // before is in the past / before minDate): a stay can start here but not end here
             classList.push('half-day-arrival')
           }
         }

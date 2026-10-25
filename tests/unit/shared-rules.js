@@ -377,6 +377,28 @@ export function sharedRules ({ open, selections }) {
       expect(wrapper.findAll('.day.in-date-range')).toHaveLength(0)
     })
 
+    it('stopAtMaxDate: the next arrow is disabled once the last shown month holds maxDate', async () => {
+      const wrapper = await open({ maxDate: new Date(2026, 5, 20) })
+      // May + June on screen, maxDate in June
+      expect(wrapper.find('.next-arrow:not(.offset-1)').classes()).toContain('disabled')
+      await wrapper.find('.next-arrow:not(.offset-1)').trigger('click')
+      expect(wrapper.find('.calendar-month-title').text()).toContain('2026')
+      expect(wrapper.vm.startMonthDate.getMonth()).toBe(4)
+    })
+
+    it('stopAtMaxDate: false pages past maxDate as before', async () => {
+      const wrapper = await open({ maxDate: new Date(2026, 5, 20), stopAtMaxDate: false })
+      expect(wrapper.find('.next-arrow:not(.offset-1)').classes()).not.toContain('disabled')
+      await wrapper.find('.next-arrow:not(.offset-1)').trigger('click')
+      expect(wrapper.vm.startMonthDate.getMonth()).toBe(6)
+    })
+
+    it('showHalfDays: the first selectable day is arrival only, like the first free day after a block', async () => {
+      const wrapper = await open({ showHalfDays: true, minDate: new Date(2026, 4, 10) })
+      expect(classes(wrapper, 10)).toContain('half-day-arrival')
+      expect(classes(wrapper, 11)).not.toContain('half-day-arrival')
+    })
+
     it('keeps the selection when only its end date becomes disabled (check-out on the first closed day)', async () => {
       const wrapper = await open()
       await clickDay(wrapper, 12)
